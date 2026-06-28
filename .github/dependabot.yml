@@ -1,0 +1,32 @@
+version: 2
+updates:
+  # npm / pnpm dependencies
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "20:00"
+      timezone: Europe/Lisbon
+    # Only surface releases that have been public for at least 7 days.
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    groups:
+      # Batch minor/patch bumps into a single PR to reduce noise.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # GitHub Actions used by the deploy workflow
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "20:00"
+      timezone: Europe/Lisbon
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
