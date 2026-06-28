@@ -35,6 +35,15 @@ const bikes = defineCollection({
     year: z.number(),
     status: z.enum(['owned', 'past', 'wishlist']),
     specs: z.record(z.string(), z.string()).default({}),
+    mods: z
+      .array(
+        z.object({
+          name: z.string(),
+          category: z.string().optional(),
+          note: z.string().optional(),
+        }),
+      )
+      .default([]),
     cover: z.string().optional(),
     draft: z.boolean().default(false),
   }),

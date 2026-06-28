@@ -23,7 +23,7 @@ All content is files — no page edits needed.
 |------|-------|-------|
 | Trip | `src/content/trips/<slug>.md` | frontmatter: `title, date, region, distanceKm, start, end, cover?, draft?` |
 | Tip | `src/content/tips/<slug>.md` | frontmatter: `title, description, date, tags?, draft?` |
-| Bike | `src/content/bikes/<slug>.md` | frontmatter: `name, make, model, year, status(owned\|past\|wishlist), specs{}, cover?, draft?` |
+| Bike | `src/content/bikes/<slug>.md` | frontmatter: `name, make, model, year, status(owned\|past\|wishlist), specs{}, mods[], cover?, draft?` |
 | Service record | `src/data/services.yaml` | append an entry; `bike:` must match a bike's filename slug |
 
 - URL of a file is `/<collection>/<slug>` (filename = slug).

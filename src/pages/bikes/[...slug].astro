@@ -75,6 +75,29 @@ const specs = Object.entries(data.specs);
       )
     }
 
+    {
+      data.mods.length > 0 && (
+        <section class="mt-10">
+          <h2 class="mb-4 font-mono text-xl font-semibold">Modifications</h2>
+          <ul class="flex flex-col gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)]">
+            {data.mods.map((m) => (
+              <li class="bg-[var(--color-card)] px-4 py-3">
+                <div class="flex items-baseline justify-between gap-3">
+                  <span class="font-medium">{m.name}</span>
+                  {m.category && (
+                    <span class="shrink-0 font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+                      {m.category}
+                    </span>
+                  )}
+                </div>
+                {m.note && <div class="mt-0.5 text-sm text-[var(--color-muted)]">{m.note}</div>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
     <section class="mt-10">
       <h2 class="mb-4 font-mono text-xl font-semibold">Service history</h2>
       <ServiceTable services={services} />

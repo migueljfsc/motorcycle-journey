@@ -56,7 +56,8 @@ public/
 ## Adding content — quick ref
 - Trip: `src/content/trips/<slug>.md` — `title, date, region, distanceKm, start, end, cover?, draft?`
 - Tip: `src/content/tips/<slug>.md` — `title, description, date, tags?, draft?`
-- Bike: `src/content/bikes/<slug>.md` — `name, make, model, year, status, specs{}, cover?, draft?`
+- Bike: `src/content/bikes/<slug>.md` — `name, make, model, year, status, specs{}, mods[], cover?, draft?`
+  (`mods`: list of `{name, category?, note?}`; renders a Modifications section, hidden when empty)
 - Service: append to `src/data/services.yaml` — `id, bike(slug), date, mileageKm, work, cost?, notes?`
 
 ## Design tokens (global.css @theme)
