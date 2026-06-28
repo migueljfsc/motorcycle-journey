@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import { fmtDate, fmtKm } from '../../lib/format';
 import { url } from '../../lib/url';
@@ -12,6 +12,14 @@ export async function getStaticPaths() {
 const { trip } = Astro.props;
 const { data } = trip;
 const { Content } = await render(trip);
+
+// Bike ridden on this trip. Owned/past bikes have a detail page; wishlist links out.
+const ridden = data.bike ? await getEntry(data.bike) : undefined;
+const bikeHref = ridden
+  ? ridden.data.status === 'wishlist'
+    ? ridden.data.link
+    : url(`/bikes/${ridden.id}`)
+  : undefined;
 ---
 
 <Layout title={data.title} description={`${data.region} · ${fmtKm(data.distanceKm)}`}>
@@ -27,6 +35,30 @@ const { Content } = await render(trip);
     <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
       {data.start} → {data.end} · {fmtKm(data.distanceKm)}
     </div>
+
+    {
+      ridden && (
+        <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
+          Ridden on{' '}
+          {bikeHref ? (
+            <a
+              href={bikeHref}
+              {...(ridden.data.status === 'wishlist'
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+              class="text-[var(--color-accent)] hover:underline"
+            >
+              {ridden.data.make} {ridden.data.model}
+              {ridden.data.status === 'wishlist' && ' ↗'}
+            </a>
+          ) : (
+            <span>
+              {ridden.data.make} {ridden.data.model}
+            </span>
+          )}
+        </div>
+      )
+    }
 
     {
       data.cover && (

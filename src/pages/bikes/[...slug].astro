@@ -3,8 +3,8 @@ import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import ServiceTable from '../../components/ServiceTable.astro';
 import Carousel from '../../components/Carousel.astro';
-import TripCard from '../../components/TripCard.astro';
 import { url } from '../../lib/url';
+import { fmtDate, fmtKm } from '../../lib/format';
 
 export async function getStaticPaths() {
   // Wishlist bikes link out to the brand site — no detail page is generated for them.
@@ -133,11 +133,21 @@ const tabs = [
         trips.length > 0 && (
           <section id="trips" class="mt-10 scroll-mt-24">
             <h2 class="mb-4 font-mono text-xl font-semibold">Trips on this bike</h2>
-            <div class="grid gap-5 sm:grid-cols-2">
+            <ul class="flex flex-col gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)]">
               {trips.map((trip) => (
-                <TripCard trip={trip} />
+                <li>
+                  <a
+                    href={url(`/trips/${trip.id}`)}
+                    class="group flex items-baseline justify-between gap-3 bg-[var(--color-card)] px-4 py-3"
+                  >
+                    <span class="font-medium group-hover:text-[var(--color-accent)]">{trip.data.title}</span>
+                    <span class="shrink-0 font-mono text-xs text-[var(--color-muted)]">
+                      {fmtDate(trip.data.date)} · {fmtKm(trip.data.distanceKm)}
+                    </span>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         )
       }
