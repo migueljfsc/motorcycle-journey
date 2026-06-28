@@ -4,7 +4,7 @@ make: Yamaha
 model: Ténéré 700
 year: 2024
 status: wishlist
-cover: /covers/tenere.svg
+cover: /covers/tenere.jpeg
 link: "https://www.yamaha-motor.eu/pt/pt/products/motorcycles/adventure-touring/tenere-700/"
 specs:
   Engine: "689cc parallel-twin (CP2)"

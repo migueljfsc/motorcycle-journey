@@ -4,7 +4,7 @@ make: BMW
 model: R 1300 GS
 year: 2024
 status: wishlist
-cover: /covers/gs.svg
+cover: /covers/gs.jpg
 link: "https://www.bmw-motorrad.pt/pt/models/adventure/r1300gs.html"
 specs:
   Engine: "1300cc boxer-twin"
