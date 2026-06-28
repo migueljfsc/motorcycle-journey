@@ -1,0 +1,42 @@
+---
+import { locales, localeName, defaultLocale, type Locale } from '../data/site';
+import { localeUrl } from '../lib/url';
+
+const current = (Astro.currentLocale ?? defaultLocale) as Locale;
+
+// Logical path (base- and locale-stripped) so we can rebuild it in each locale.
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+let logical = Astro.url.pathname.slice(base.length).replace(/^\/(pt)(?=\/|$)/, '');
+if (!logical) logical = '/';
+---
+
+<div class="flex items-center gap-1 font-mono text-xs">
+  {
+    locales.map((loc, i) => (
+      <>
+        {i > 0 && <span class="text-[var(--color-border)]">/</span>}
+        <a
+          href={localeUrl(loc, logical)}
+          data-setlang={loc}
+          class:list={[
+            'px-1 transition-colors hover:text-[var(--color-accent)]',
+            loc === current ? 'text-[var(--color-accent)]' : 'text-[var(--color-muted)]',
+          ]}
+        >
+          {localeName[loc]}
+        </a>
+      </>
+    ))
+  }
+</div>
+
+<script>
+  // Remember the user's explicit choice for next visit.
+  document.querySelectorAll<HTMLElement>('[data-setlang]').forEach((a) =>
+    a.addEventListener('click', () => {
+      try {
+        localStorage.setItem('moto-lang', a.dataset.setlang!);
+      } catch {}
+    }),
+  );
+</script>

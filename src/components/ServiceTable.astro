@@ -1,44 +1,43 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { fmtDate, fmtKm } from '../lib/format';
+import { t, defaultLocale, type Locale } from '../data/site';
 
 interface Props {
   services: CollectionEntry<'services'>[];
 }
 const { services } = Astro.props;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const c = t(locale);
 ---
 
 {
   services.length === 0 ? (
-    <p class="font-mono text-sm text-[var(--color-muted)]">No service records yet.</p>
+    <p class="font-mono text-sm text-[var(--color-muted)]">{c.ui.noService}</p>
   ) : (
     <div class="overflow-x-auto rounded-lg border border-[var(--color-border)]">
       <table class="w-full text-left text-sm">
         <thead class="font-mono text-xs uppercase tracking-wide text-[var(--color-muted)]">
           <tr class="border-b border-[var(--color-border)]">
-            <th class="px-4 py-3 font-medium">Date</th>
-            <th class="px-4 py-3 font-medium">Mileage</th>
-            <th class="px-4 py-3 font-medium">Work</th>
-            <th class="px-4 py-3 text-right font-medium">Cost</th>
+            <th class="px-4 py-3 font-medium">{c.ui.tableDate}</th>
+            <th class="px-4 py-3 font-medium">{c.ui.tableMileage}</th>
+            <th class="px-4 py-3 font-medium">{c.ui.tableWork}</th>
           </tr>
         </thead>
         <tbody>
           {services.map((s) => (
             <tr class="border-b border-[var(--color-border)] last:border-0 align-top">
               <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-[var(--color-muted)]">
-                {fmtDate(s.data.date)}
+                {fmtDate(s.data.date, locale)}
               </td>
               <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-[var(--color-muted)]">
-                {fmtKm(s.data.mileageKm)}
+                {s.data.mileageKm != null ? fmtKm(s.data.mileageKm, locale) : '—'}
               </td>
               <td class="px-4 py-3">
-                {s.data.work}
+                {s.data.work[locale]}
                 {s.data.notes && (
-                  <div class="mt-1 text-xs text-[var(--color-muted)]">{s.data.notes}</div>
+                  <div class="mt-1 text-xs text-[var(--color-muted)]">{s.data.notes[locale]}</div>
                 )}
-              </td>
-              <td class="whitespace-nowrap px-4 py-3 text-right font-mono text-xs">
-                {s.data.cost != null ? `€${s.data.cost}` : '—'}
               </td>
             </tr>
           ))}

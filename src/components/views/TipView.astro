@@ -1,0 +1,42 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { fmtDate } from '../../lib/format';
+import { localeUrl } from '../../lib/url';
+import { t, type Locale } from '../../data/site';
+
+interface Props {
+  locale: Locale;
+  tip: CollectionEntry<'tips'>;
+}
+const { locale, tip } = Astro.props;
+const c = t(locale);
+const { data } = tip;
+const { Content } = await render(tip);
+---
+
+<Layout title={data.title} description={data.description}>
+  <a href={localeUrl(locale, '/tips')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
+    {c.ui.backToTips}
+  </a>
+
+  <article class="mt-4">
+    <h1 class="font-mono text-3xl font-semibold tracking-tight">{data.title}</h1>
+    <div class="mt-2 font-mono text-sm text-[var(--color-muted)]">{fmtDate(data.date, locale)}</div>
+
+    {
+      data.tags.length > 0 && (
+        <div class="mt-3 flex flex-wrap gap-2 font-mono text-xs text-[var(--color-accent)]">
+          {data.tags.map((tag) => (
+            <span class="rounded bg-[var(--color-accent-soft)] px-2 py-0.5">#{tag}</span>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="prose mt-8">
+      <Content />
+    </div>
+  </article>
+</Layout>

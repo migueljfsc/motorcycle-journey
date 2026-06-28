@@ -1,9 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
-import BikeView from '../../components/views/BikeView.astro';
+import BikeView from '../../../components/views/BikeView.astro';
 
 export async function getStaticPaths() {
-  // Wishlist bikes link out to the brand site — no detail page is generated.
   const bikes = await getCollection(
     'bikes',
     ({ data }) => !data.draft && data.status !== 'wishlist',
@@ -14,4 +13,4 @@ export async function getStaticPaths() {
 const { bike } = Astro.props;
 ---
 
-<BikeView locale="en" bike={bike} />
+<BikeView locale="pt" bike={bike} />

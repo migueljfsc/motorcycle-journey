@@ -1,9 +1,13 @@
 ---
+import { t, defaultLocale, type Locale } from '../data/site';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const c = t(locale);
 const year = new Date().getFullYear();
 ---
 
 <footer class="mt-20 border-t border-[var(--color-border)]">
   <div class="mx-auto max-w-3xl px-5 py-8 font-mono text-xs text-[var(--color-muted)]">
-    <p>© {year} · documenting the ride · built with Astro</p>
+    <p>© {year} · {c.footerTagline} · {c.footerBuilt}</p>
   </div>
 </footer>

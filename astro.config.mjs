@@ -8,6 +8,13 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://migueljfsc.github.io',
   base: '/motorcycle-journey',
+  i18n: {
+    locales: ['en', 'pt'],
+    defaultLocale: 'en',
+    routing: {
+      prefixDefaultLocale: false, // EN at /…, PT at /pt/…
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

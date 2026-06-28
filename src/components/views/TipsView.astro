@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { fmtDate } from '../../lib/format';
+import { localeUrl } from '../../lib/url';
+import { t, type Locale } from '../../data/site';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = t(locale);
+
+const tips = (
+  await getCollection('tips', ({ id, data }) => !data.draft && id.startsWith(`${locale}/`))
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<Layout title={c.pages.tips.title} description={c.pages.tips.description}>
+  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight">{c.pages.tips.heading}</h1>
+  <ul class="flex flex-col gap-4">
+    {
+      tips.map((tip) => {
+        const slug = tip.id.replace(/^[a-z]{2}\//, '');
+        return (
+          <li>
+            <a
+              href={localeUrl(locale, `/tips/${slug}`)}
+              class="group block rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5 transition-colors hover:border-[var(--color-accent)]"
+            >
+              <div class="font-mono text-xs text-[var(--color-muted)]">{fmtDate(tip.data.date, locale)}</div>
+              <h2 class="mt-1 text-lg font-semibold group-hover:text-[var(--color-accent)]">
+                {tip.data.title}
+              </h2>
+              <p class="mt-1 text-sm text-[var(--color-muted)]">{tip.data.description}</p>
+              {tip.data.tags.length > 0 && (
+                <div class="mt-3 flex flex-wrap gap-2 font-mono text-xs text-[var(--color-accent)]">
+                  {tip.data.tags.map((tag) => (
+                    <span class="rounded bg-[var(--color-accent-soft)] px-2 py-0.5">#{tag}</span>
+                  ))}
+                </div>
+              )}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</Layout>

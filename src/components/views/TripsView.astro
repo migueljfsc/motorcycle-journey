@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import TripCard from '../TripCard.astro';
+import { t, type Locale } from '../../data/site';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = t(locale);
+
+const trips = (
+  await getCollection('trips', ({ id, data }) => !data.draft && id.startsWith(`${locale}/`))
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<Layout title={c.pages.trips.title} description={c.pages.trips.description}>
+  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight">{c.pages.trips.heading}</h1>
+  <div class="grid gap-5 sm:grid-cols-2">
+    {trips.map((trip) => <TripCard trip={trip} />)}
+  </div>
+</Layout>

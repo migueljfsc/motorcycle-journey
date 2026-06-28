@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+import TripView from '../../../components/views/TripView.astro';
+
+export async function getStaticPaths() {
+  const trips = await getCollection('trips', ({ id, data }) => !data.draft && id.startsWith('pt/'));
+  return trips.map((trip) => ({
+    params: { slug: trip.id.replace(/^pt\//, '') },
+    props: { trip },
+  }));
+}
+
+const { trip } = Astro.props;
+---
+
+<TripView locale="pt" trip={trip} />

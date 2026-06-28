@@ -3,10 +3,10 @@
 [![Deploy to GitHub Pages](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml/badge.svg)](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml)
 
 A mostly-static site documenting a motorcycle journey: **trips**, **tips & tricks**, a
-**bike catalog**, and **per-bike service logs**. Built with Astro + Tailwind, deployed to
-GitHub Pages.
+**bike catalog**, and **per-bike service logs**. Built with Astro + Tailwind, bilingual
+(EN / PT), deployed to GitHub Pages.
 
-**Live:** https://migueljfsc.github.io/motorcycle-journey/
+**Live:** https://migueljfsc.github.io/motorcycle-journey/ (PT at `/pt/`)
 
 ## Develop
 
@@ -19,20 +19,31 @@ pnpm preview    # serve the built site locally
 
 Node >= 22.12. Package manager: pnpm.
 
+## Languages
+
+Bilingual via Astro i18n: **EN** at the root (`/…`), **PT** under `/pt/…`. The nav has an
+EN/PT toggle that remembers your choice. UI strings live per-locale in `src/data/site.ts`
+(`t(locale)`); see `AGENTS.md` for the i18n architecture.
+
 ## Adding content
 
-All content is files — no page edits needed.
+All content is files — no page edits needed. Trips & tips are one file **per language**;
+bikes are a single file with localized fields.
 
 | What | Where | Notes |
 |------|-------|-------|
-| Trip | `src/content/trips/<slug>.md` | frontmatter: `title, date, region, distanceKm, start, end, bike?, cover?, draft?`. `bike` = a bike slug; lists the trip on that bike's page. |
-| Tip | `src/content/tips/<slug>.md` | frontmatter: `title, description, date, tags?, draft?` |
-| Bike | `src/content/bikes/<slug>.md` | frontmatter: `name, make, model, year, status(owned\|past\|wishlist), specs{}, mods[], cover?, photos[], link?, draft?`. Wishlist bikes need `link` (card opens the brand site; no detail page). `photos` feeds the detail-page carousel. |
-| Service record | `src/data/services.yaml` | append an entry; `bike:` must match a bike's filename slug |
+| Trip | `src/content/trips/<locale>/<slug>.md` | one per language (`en/`, `pt/`); `title, date, region, distanceKm, start, end, bike?, cover?, draft?`. `bike` = a bike slug. |
+| Tip | `src/content/tips/<locale>/<slug>.md` | one per language; `title, description, date, tags?, draft?` |
+| Bike | `src/content/bikes/<slug>.md` | single file; `name{en,pt}, make, model, year, status, purchased?, specs{}, description{en[],pt[]}, mods[], cover?, photos[], link?, draft?`. Wishlist bikes need `link` (card opens brand site; no detail page). |
+| Service record | `src/data/services.yaml` | append `id, bike, date, work{en,pt}, mileageKm?, notes?{en,pt}`; `bike:` must match a bike slug |
 
-- URL of a file is `/<collection>/<slug>` (filename = slug).
 - `draft: true` hides an entry from lists and routes.
-- Cover images live in `public/covers/` and are referenced as `/covers/<name>` in frontmatter.
+- Cover/photo images live in `public/covers/`, referenced as `/covers/<name>` in frontmatter.
+
+## Dependencies
+
+Dependabot (`.github/dependabot.yml`) opens update PRs weekly (Sundays 20:00 Europe/Lisbon)
+for npm and GitHub Actions, with a 7-day cooldown before a new release is proposed.
 
 ## Deploy
 

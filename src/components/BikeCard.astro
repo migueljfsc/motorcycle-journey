@@ -1,22 +1,19 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { url, asset } from '../lib/url';
+import { localeUrl, asset } from '../lib/url';
+import { t, defaultLocale, type Locale } from '../data/site';
 
 interface Props {
   bike: CollectionEntry<'bikes'>;
 }
 const { bike } = Astro.props;
 const { data } = bike;
-
-const statusLabel: Record<typeof data.status, string> = {
-  owned: 'Owned',
-  past: 'Previously owned',
-  wishlist: 'Wishlist',
-};
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const c = t(locale);
 
 // Wishlist bikes link out to the brand site; owned/past link to their detail page.
 const external = data.status === 'wishlist';
-const href = external ? data.link : url(`/bikes/${bike.id}`);
+const href = external ? data.link : localeUrl(locale, `/bikes/${bike.id}`);
 const linkAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
@@ -25,21 +22,17 @@ const linkAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : 
   {...linkAttrs}
   class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
 >
-  {
-    data.cover && (
-      <img src={asset(data.cover)} alt="" class="aspect-[2/1] w-full object-cover" />
-    )
-  }
+  {data.cover && <img src={asset(data.cover)} alt="" class="aspect-[2/1] w-full object-cover" />}
   <div class="p-5">
     <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
-      {statusLabel[data.status]}
+      {c.bikeStatusLabel[data.status]}
     </div>
     <h3 class="mt-1 flex items-center gap-1.5 text-lg font-semibold group-hover:text-[var(--color-accent)]">
       {data.make} {data.model}
       {external && <span class="font-mono text-sm text-[var(--color-muted)] group-hover:text-[var(--color-accent)]">↗</span>}
     </h3>
     <div class="mt-1 font-mono text-xs text-[var(--color-muted)]">
-      {data.year} · "{data.name}"
+      {data.year} · "{data.name[locale]}"
     </div>
   </div>
 </a>

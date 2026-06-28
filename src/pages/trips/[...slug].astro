@@ -1,77 +1,16 @@
 ---
-import { getCollection, getEntry, render } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
-import { fmtDate, fmtKm } from '../../lib/format';
-import { url } from '../../lib/url';
+import { getCollection } from 'astro:content';
+import TripView from '../../components/views/TripView.astro';
 
 export async function getStaticPaths() {
-  const trips = await getCollection('trips', ({ data }) => !data.draft);
-  return trips.map((trip) => ({ params: { slug: trip.id }, props: { trip } }));
+  const trips = await getCollection('trips', ({ id, data }) => !data.draft && id.startsWith('en/'));
+  return trips.map((trip) => ({
+    params: { slug: trip.id.replace(/^en\//, '') },
+    props: { trip },
+  }));
 }
 
 const { trip } = Astro.props;
-const { data } = trip;
-const { Content } = await render(trip);
-
-// Bike ridden on this trip. Owned/past bikes have a detail page; wishlist links out.
-const ridden = data.bike ? await getEntry(data.bike) : undefined;
-const bikeHref = ridden
-  ? ridden.data.status === 'wishlist'
-    ? ridden.data.link
-    : url(`/bikes/${ridden.id}`)
-  : undefined;
 ---
 
-<Layout title={data.title} description={`${data.region} · ${fmtKm(data.distanceKm)}`}>
-  <a href={url('/trips')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
-    ← all trips
-  </a>
-
-  <article class="mt-4">
-    <h1 class="font-mono text-3xl font-semibold tracking-tight">{data.title}</h1>
-    <div class="mt-2 font-mono text-sm text-[var(--color-muted)]">
-      {fmtDate(data.date)} · {data.region}
-    </div>
-    <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
-      {data.start} → {data.end} · {fmtKm(data.distanceKm)}
-    </div>
-
-    {
-      ridden && (
-        <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
-          Ridden on{' '}
-          {bikeHref ? (
-            <a
-              href={bikeHref}
-              {...(ridden.data.status === 'wishlist'
-                ? { target: '_blank', rel: 'noopener noreferrer' }
-                : {})}
-              class="text-[var(--color-accent)] hover:underline"
-            >
-              {ridden.data.make} {ridden.data.model}
-              {ridden.data.status === 'wishlist' && ' ↗'}
-            </a>
-          ) : (
-            <span>
-              {ridden.data.make} {ridden.data.model}
-            </span>
-          )}
-        </div>
-      )
-    }
-
-    {
-      data.cover && (
-        <img
-          src={`${import.meta.env.BASE_URL}${data.cover}`.replace(/\/+/g, '/')}
-          alt=""
-          class="mt-6 aspect-[2/1] w-full rounded-lg object-cover"
-        />
-      )
-    }
-
-    <div class="prose mt-8">
-      <Content />
-    </div>
-  </article>
-</Layout>
+<TripView locale="en" trip={trip} />

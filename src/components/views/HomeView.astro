@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import TripCard from '../TripCard.astro';
+import BikeCard from '../BikeCard.astro';
+import { localeUrl } from '../../lib/url';
+import { t, type Locale } from '../../data/site';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = t(locale);
+
+const trips = (
+  await getCollection('trips', ({ id, data }) => !data.draft && id.startsWith(`${locale}/`))
+)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, c.home.latestTripsCount);
+
+// Home shows only bikes currently owned.
+const bikes = await getCollection('bikes', ({ data }) => !data.draft && data.status === 'owned');
+---
+
+<Layout>
+  <section class="mb-14">
+    <h1 class="font-mono text-3xl font-semibold tracking-tight sm:text-4xl">{c.home.heading}</h1>
+    <p class="mt-3 max-w-prose text-[var(--color-muted)]">{c.home.intro}</p>
+  </section>
+
+  <section class="mb-14">
+    <div class="mb-4 flex items-baseline justify-between">
+      <h2 class="font-mono text-xl font-semibold">{c.home.trips.title}</h2>
+      <a href={localeUrl(locale, '/trips')} class="font-mono text-sm text-[var(--color-accent)] hover:underline">
+        {c.home.trips.link}
+      </a>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      {trips.map((trip) => <TripCard trip={trip} />)}
+    </div>
+  </section>
+
+  <section>
+    <div class="mb-4 flex items-baseline justify-between">
+      <h2 class="font-mono text-xl font-semibold">{c.home.bikes.title}</h2>
+      <a href={localeUrl(locale, '/bikes')} class="font-mono text-sm text-[var(--color-accent)] hover:underline">
+        {c.home.bikes.link}
+      </a>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      {bikes.map((bike) => <BikeCard bike={bike} />)}
+    </div>
+  </section>
+</Layout>

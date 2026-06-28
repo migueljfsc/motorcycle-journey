@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import { site, t, defaultLocale, type Locale } from '../data/site';
 
 interface Props {
   title?: string;
@@ -9,21 +10,37 @@ interface Props {
   wide?: boolean;
 }
 
-const {
-  title = 'Moto Journey',
-  description = 'Trips, tips, a bike catalog and service logs from the road.',
-  wide = false,
-} = Astro.props;
-const fullTitle = title === 'Moto Journey' ? title : `${title} · Moto Journey`;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const c = t(locale);
+const { title = site.name, description = c.description, wide = false } = Astro.props;
+const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`.replace(/\/+/g, '/')} />
+    {/* Honor a remembered language choice before paint. */}
+    <script is:inline define:vars={{ base }}>
+      (function () {
+        try {
+          var stored = localStorage.getItem('moto-lang');
+          if (stored !== 'en' && stored !== 'pt') return;
+          var rel = location.pathname.slice(base.length);
+          var isPt = /^\/pt(\/|$)/.test(rel);
+          var current = isPt ? 'pt' : 'en';
+          if (stored === current) return;
+          var logical = rel.replace(/^\/pt(?=\/|$)/, '') || '/';
+          var target = stored === 'pt' ? base + '/pt' + (logical === '/' ? '/' : logical) : base + logical;
+          if (target !== location.pathname) location.replace(target);
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

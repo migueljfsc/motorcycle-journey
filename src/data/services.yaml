@@ -1,31 +1,30 @@
-- id: cl500-2024-03
+- id: cl500-2024-03-purchase
   bike: cl500
-  date: 2024-03-12
-  mileageKm: 18200
-  work: "Oil & filter change, chain clean + adjust"
-  cost: 65
-  notes: "10W-30 full synthetic. Chain at 35mm slack, set to 30mm."
+  date: 2024-03-27
+  mileageKm: 2331
+  work:
+    en: "Purchased"
+    pt: "Compra"
 
-- id: cl500-2024-07
+- id: cl500-2025-09
   bike: cl500
-  date: 2024-07-02
-  mileageKm: 22100
-  work: "New rear tyre (Michelin Road 6), brake fluid flush"
-  cost: 190
-  notes: "Old Road 5 squared off after the coast trip."
+  date: 2025-09-01
+  mileageKm: 5441
+  work:
+    en: "Wash · Oil & oil filter change"
+    pt: "Lavagem · Substituição de óleo e filtro de óleo"
 
-- id: cl500-2024-11
+- id: cl500-2025-10
   bike: cl500
-  date: 2024-11-18
-  mileageKm: 26400
-  work: "Valve clearance check, air filter, spark plugs"
-  cost: 240
-  notes: "Intake valves within spec, no shim change needed."
+  date: 2025-10-10
+  mileageKm: 5660
+  work:
+    en: "Wash · Lubrication · Tyre pressure (29 psi, 36 psi)"
+    pt: "Lavagem · Lubrificação · Pressão pneus (29 psi, 36 psi)"
 
-- id: cl500-2025-04
+- id: cl500-2026-05
   bike: cl500
-  date: 2025-04-09
-  mileageKm: 30050
-  work: "Oil & filter change, front pads"
-  cost: 110
-  notes: "Pre-season service before the mountain loop."
+  date: 2026-05-26
+  work:
+    en: "Wash · Lubrication · Tyre pressure (29 psi, 36 psi)"
+    pt: "Lavagem · Lubrificação · Pressão pneus (29 psi, 36 psi)"

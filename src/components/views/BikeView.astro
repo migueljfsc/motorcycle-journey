@@ -1,0 +1,173 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import ServiceTable from '../ServiceTable.astro';
+import Carousel from '../Carousel.astro';
+import TripCard from '../TripCard.astro';
+import CardCarousel from '../CardCarousel.astro';
+import { fmtMonthYear } from '../../lib/format';
+import { localeUrl } from '../../lib/url';
+import { t, type Locale } from '../../data/site';
+
+interface Props {
+  locale: Locale;
+  bike: CollectionEntry<'bikes'>;
+}
+const { locale, bike } = Astro.props;
+const c = t(locale);
+const { data } = bike;
+
+const services = (await getCollection('services'))
+  .filter((s) => s.data.bike.id === bike.id)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const trips = (
+  await getCollection('trips', ({ id, data: d }) => !d.draft && id.startsWith(`${locale}/`))
+)
+  .filter((tr) => tr.data.bike?.id === bike.id)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const specs = Object.entries(data.specs);
+const photos = data.photos.length ? data.photos : data.cover ? [data.cover] : [];
+
+const tabs = [
+  { id: 'overview', label: c.ui.overview },
+  specs.length > 0 ? { id: 'specs', label: c.ui.specs } : null,
+  data.mods.length > 0 ? { id: 'mods', label: c.ui.modifications } : null,
+  trips.length > 0 ? { id: 'trips', label: c.pages.trips.title } : null,
+  { id: 'service', label: c.ui.serviceHistory },
+].filter((x): x is { id: string; label: string } => x !== null);
+---
+
+<Layout title={`${data.make} ${data.model}`} description={`${c.bikeStatusLabel[data.status]} · ${data.year}`} wide>
+  <a href={localeUrl(locale, '/bikes')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
+    {c.ui.backToGarage}
+  </a>
+
+  <div class="mt-4 lg:grid lg:grid-cols-[180px_1fr] lg:gap-10">
+    <aside class="hidden lg:block">
+      <nav class="sticky top-24 flex flex-col gap-1 font-mono text-sm" data-tabs>
+        {
+          tabs.map((tab) => (
+            <a
+              href={`#${tab.id}`}
+              data-tab={tab.id}
+              class="rounded px-3 py-1.5 text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+            >
+              {tab.label}
+            </a>
+          ))
+        }
+      </nav>
+    </aside>
+
+    <article>
+      <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+        {c.bikeStatusLabel[data.status]}
+      </div>
+      <h1 class="mt-1 font-mono text-3xl font-semibold tracking-tight">{data.make} {data.model}</h1>
+      <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
+        {data.year} · "{data.name[locale]}"
+        {data.purchased && ` · ${c.ui.ownedSince} ${fmtMonthYear(data.purchased, locale)}`}
+      </div>
+
+      {photos.length > 0 && <div class="mt-6"><Carousel images={photos} alt={`${data.make} ${data.model}`} /></div>}
+
+      <section id="overview" class="scroll-mt-24">
+        <div class="prose mt-8">
+          {data.description[locale].map((p) => <p>{p}</p>)}
+        </div>
+      </section>
+
+      {
+        specs.length > 0 && (
+          <section id="specs" class="mt-10 scroll-mt-24">
+            <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.specs}</h2>
+            <dl class="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)] sm:grid-cols-2">
+              {specs.map(([k, v]) => (
+                <div class="bg-[var(--color-card)] px-4 py-3">
+                  <dt class="font-mono text-xs uppercase tracking-wide text-[var(--color-muted)]">{k}</dt>
+                  <dd class="mt-0.5">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )
+      }
+
+      {
+        data.mods.length > 0 && (
+          <section id="mods" class="mt-10 scroll-mt-24">
+            <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.modifications}</h2>
+            <ul class="flex flex-col gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)]">
+              {data.mods.map((m) => (
+                <li class="bg-[var(--color-card)] px-4 py-3">
+                  <div class="flex items-baseline justify-between gap-3">
+                    <span class="font-medium">{m.name[locale]}</span>
+                    {m.category && (
+                      <span class="shrink-0 font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+                        {m.category[locale]}
+                      </span>
+                    )}
+                  </div>
+                  {m.note && <div class="mt-0.5 text-sm text-[var(--color-muted)]">{m.note[locale]}</div>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        trips.length > 0 && (
+          <section id="trips" class="mt-10 scroll-mt-24">
+            <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.tripsOnBike}</h2>
+            <CardCarousel>
+              {trips.map((trip) => (
+                <div class="snap-start shrink-0 basis-[88%] sm:basis-[48%]">
+                  <TripCard trip={trip} />
+                </div>
+              ))}
+            </CardCarousel>
+          </section>
+        )
+      }
+
+      <section id="service" class="mt-10 scroll-mt-24">
+        <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.serviceHistory}</h2>
+        <ServiceTable services={services} />
+      </section>
+    </article>
+  </div>
+</Layout>
+
+<script>
+  // Scrollspy: highlight the tab for the section currently scrolled into view.
+  const tabLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-tab]'));
+  const sections = tabLinks
+    .map((l) => document.getElementById(l.dataset.tab!))
+    .filter((s): s is HTMLElement => s !== null);
+
+  if (tabLinks.length > 0 && sections.length > 0) {
+    const offset = 130;
+    const setActive = () => {
+      let currentId = sections[0].id;
+      for (const s of sections) {
+        if (s.getBoundingClientRect().top <= offset) currentId = s.id;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        currentId = sections[sections.length - 1].id;
+      }
+      for (const l of tabLinks) {
+        const on = l.dataset.tab === currentId;
+        l.style.color = on ? 'var(--color-accent)' : '';
+        l.style.fontWeight = on ? '600' : '';
+        l.style.borderLeft = on ? '2px solid var(--color-accent)' : '2px solid transparent';
+      }
+    };
+    setActive();
+    window.addEventListener('scroll', () => requestAnimationFrame(setActive), { passive: true });
+    window.addEventListener('resize', setActive);
+  }
+</script>
