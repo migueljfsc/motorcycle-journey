@@ -5,6 +5,7 @@ region: "Portugal — Central Mountains"
 distanceKm: 280
 start: "Covilhã"
 end: "Covilhã"
+bike: cl500
 cover: /covers/mountain-loop.svg
 ---
 

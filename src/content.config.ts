@@ -10,6 +10,7 @@ const trips = defineCollection({
     distanceKm: z.number(),
     start: z.string(),
     end: z.string(),
+    bike: reference('bikes').optional(),
     cover: z.string().optional(),
     draft: z.boolean().default(false),
   }),

@@ -54,7 +54,8 @@ public/
   `({ data }) => !data.draft` in `getCollection`).
 
 ## Adding content — quick ref
-- Trip: `src/content/trips/<slug>.md` — `title, date, region, distanceKm, start, end, cover?, draft?`
+- Trip: `src/content/trips/<slug>.md` — `title, date, region, distanceKm, start, end, bike?, cover?, draft?`
+  (`bike`: slug of the bike ridden; surfaces the trip under "Trips on this bike" on that bike's page)
 - Tip: `src/content/tips/<slug>.md` — `title, description, date, tags?, draft?`
 - Bike: `src/content/bikes/<slug>.md` — `name, make, model, year, status, specs{}, mods[], cover?, photos[], link?, draft?`
   - `mods`: list of `{name, category?, note?}`; renders a Modifications section, hidden when empty.

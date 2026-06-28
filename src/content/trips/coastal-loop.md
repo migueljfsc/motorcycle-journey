@@ -5,6 +5,7 @@ region: "Portugal — West Coast"
 distanceKm: 640
 start: "Porto"
 end: "Sagres"
+bike: cl500
 cover: /covers/coastal-loop.svg
 ---
 

@@ -21,7 +21,7 @@ All content is files — no page edits needed.
 
 | What | Where | Notes |
 |------|-------|-------|
-| Trip | `src/content/trips/<slug>.md` | frontmatter: `title, date, region, distanceKm, start, end, cover?, draft?` |
+| Trip | `src/content/trips/<slug>.md` | frontmatter: `title, date, region, distanceKm, start, end, bike?, cover?, draft?`. `bike` = a bike slug; lists the trip on that bike's page. |
 | Tip | `src/content/tips/<slug>.md` | frontmatter: `title, description, date, tags?, draft?` |
 | Bike | `src/content/bikes/<slug>.md` | frontmatter: `name, make, model, year, status(owned\|past\|wishlist), specs{}, mods[], cover?, photos[], link?, draft?`. Wishlist bikes need `link` (card opens the brand site; no detail page). `photos` feeds the detail-page carousel. |
 | Service record | `src/data/services.yaml` | append an entry; `bike:` must match a bike's filename slug |

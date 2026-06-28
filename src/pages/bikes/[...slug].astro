@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import ServiceTable from '../../components/ServiceTable.astro';
 import Carousel from '../../components/Carousel.astro';
+import TripCard from '../../components/TripCard.astro';
 import { url } from '../../lib/url';
 
 export async function getStaticPaths() {
@@ -12,6 +13,7 @@ export async function getStaticPaths() {
     ({ data }) => !data.draft && data.status !== 'wishlist',
   );
   const services = await getCollection('services');
+  const trips = await getCollection('trips', ({ data }) => !data.draft);
 
   return bikes.map((bike) => ({
     params: { slug: bike.id },
@@ -20,11 +22,14 @@ export async function getStaticPaths() {
       services: services
         .filter((s) => s.data.bike.id === bike.id)
         .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+      trips: trips
+        .filter((t) => t.data.bike?.id === bike.id)
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
     },
   }));
 }
 
-const { bike, services } = Astro.props;
+const { bike, services, trips } = Astro.props;
 const { data } = bike;
 const { Content } = await render(bike);
 
@@ -40,6 +45,7 @@ const tabs = [
   { id: 'overview', label: 'Overview' },
   specs.length > 0 ? { id: 'specs', label: 'Specs' } : null,
   data.mods.length > 0 ? { id: 'mods', label: 'Modifications' } : null,
+  trips.length > 0 ? { id: 'trips', label: 'Trips' } : null,
   { id: 'service', label: 'Service history' },
 ].filter((t): t is { id: string; label: string } => t !== null);
 ---
@@ -119,6 +125,19 @@ const tabs = [
                 </li>
               ))}
             </ul>
+          </section>
+        )
+      }
+
+      {
+        trips.length > 0 && (
+          <section id="trips" class="mt-10 scroll-mt-24">
+            <h2 class="mb-4 font-mono text-xl font-semibold">Trips on this bike</h2>
+            <div class="grid gap-5 sm:grid-cols-2">
+              {trips.map((trip) => (
+                <TripCard trip={trip} />
+              ))}
+            </div>
           </section>
         )
       }
