@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { fmtDate } from '../../lib/format';
+import { url } from '../../lib/url';
+
+const tips = (await getCollection('tips', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Layout title="Tips" description="Tips and tricks from the saddle and the garage.">
+  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight">Tips &amp; tricks</h1>
+  <ul class="flex flex-col gap-4">
+    {
+      tips.map((tip) => (
+        <li>
+          <a
+            href={url(`/tips/${tip.id}`)}
+            class="group block rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5 transition-colors hover:border-[var(--color-accent)]"
+          >
+            <div class="font-mono text-xs text-[var(--color-muted)]">{fmtDate(tip.data.date)}</div>
+            <h2 class="mt-1 text-lg font-semibold group-hover:text-[var(--color-accent)]">
+              {tip.data.title}
+            </h2>
+            <p class="mt-1 text-sm text-[var(--color-muted)]">{tip.data.description}</p>
+            {tip.data.tags.length > 0 && (
+              <div class="mt-3 flex flex-wrap gap-2 font-mono text-xs text-[var(--color-accent)]">
+                {tip.data.tags.map((t) => (
+                  <span class="rounded bg-[var(--color-accent-soft)] px-2 py-0.5">#{t}</span>
+                ))}
+              </div>
+            )}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Layout>

@@ -1,0 +1,83 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import ServiceTable from '../../components/ServiceTable.astro';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const bikes = await getCollection('bikes', ({ data }) => !data.draft);
+  const services = await getCollection('services');
+
+  return bikes.map((bike) => ({
+    params: { slug: bike.id },
+    props: {
+      bike,
+      services: services
+        .filter((s) => s.data.bike.id === bike.id)
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+
+const { bike, services } = Astro.props;
+const { data } = bike;
+const { Content } = await render(bike);
+
+const statusLabel: Record<typeof data.status, string> = {
+  owned: 'Owned',
+  past: 'Previously owned',
+  wishlist: 'Wishlist',
+};
+const specs = Object.entries(data.specs);
+---
+
+<Layout title={`${data.make} ${data.model}`} description={`${statusLabel[data.status]} · ${data.year}`}>
+  <a href={url('/bikes')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
+    ← the garage
+  </a>
+
+  <article class="mt-4">
+    <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+      {statusLabel[data.status]}
+    </div>
+    <h1 class="mt-1 font-mono text-3xl font-semibold tracking-tight">
+      {data.make} {data.model}
+    </h1>
+    <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">{data.year} · "{data.name}"</div>
+
+    {
+      data.cover && (
+        <img
+          src={`${import.meta.env.BASE_URL}${data.cover}`.replace(/\/+/g, '/')}
+          alt=""
+          class="mt-6 aspect-[2/1] w-full rounded-lg object-cover"
+        />
+      )
+    }
+
+    <div class="prose mt-8">
+      <Content />
+    </div>
+
+    {
+      specs.length > 0 && (
+        <section class="mt-10">
+          <h2 class="mb-4 font-mono text-xl font-semibold">Specs</h2>
+          <dl class="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)] sm:grid-cols-2">
+            {specs.map(([k, v]) => (
+              <div class="bg-[var(--color-card)] px-4 py-3">
+                <dt class="font-mono text-xs uppercase tracking-wide text-[var(--color-muted)]">{k}</dt>
+                <dd class="mt-0.5">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )
+    }
+
+    <section class="mt-10">
+      <h2 class="mb-4 font-mono text-xl font-semibold">Service history</h2>
+      <ServiceTable services={services} />
+    </section>
+  </article>
+</Layout>

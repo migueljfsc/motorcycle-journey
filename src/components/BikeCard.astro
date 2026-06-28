@@ -1,0 +1,42 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/url';
+
+interface Props {
+  bike: CollectionEntry<'bikes'>;
+}
+const { bike } = Astro.props;
+const { data } = bike;
+
+const statusLabel: Record<typeof data.status, string> = {
+  owned: 'Owned',
+  past: 'Previously owned',
+  wishlist: 'Wishlist',
+};
+---
+
+<a
+  href={url(`/bikes/${bike.id}`)}
+  class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
+>
+  {
+    data.cover && (
+      <img
+        src={`${import.meta.env.BASE_URL}${data.cover}`.replace(/\/+/g, '/')}
+        alt=""
+        class="aspect-[2/1] w-full object-cover"
+      />
+    )
+  }
+  <div class="p-5">
+    <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+      {statusLabel[data.status]}
+    </div>
+    <h3 class="mt-1 text-lg font-semibold group-hover:text-[var(--color-accent)]">
+      {data.make} {data.model}
+    </h3>
+    <div class="mt-1 font-mono text-xs text-[var(--color-muted)]">
+      {data.year} · "{data.name}"
+    </div>
+  </div>
+</a>

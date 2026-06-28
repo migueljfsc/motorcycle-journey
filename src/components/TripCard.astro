@@ -1,0 +1,37 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/url';
+import { fmtDate, fmtKm } from '../lib/format';
+
+interface Props {
+  trip: CollectionEntry<'trips'>;
+}
+const { trip } = Astro.props;
+const { data } = trip;
+---
+
+<a
+  href={url(`/trips/${trip.id}`)}
+  class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
+>
+  {
+    data.cover && (
+      <img
+        src={`${import.meta.env.BASE_URL}${data.cover}`.replace(/\/+/g, '/')}
+        alt=""
+        class="aspect-[2/1] w-full object-cover"
+      />
+    )
+  }
+  <div class="p-5">
+    <div class="font-mono text-xs text-[var(--color-muted)]">
+      {fmtDate(data.date)} · {data.region}
+    </div>
+    <h3 class="mt-1 text-lg font-semibold group-hover:text-[var(--color-accent)]">
+      {data.title}
+    </h3>
+    <div class="mt-2 font-mono text-xs text-[var(--color-muted)]">
+      {data.start} → {data.end} · {fmtKm(data.distanceKm)}
+    </div>
+  </div>
+</a>

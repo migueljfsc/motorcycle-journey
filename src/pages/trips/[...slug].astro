@@ -1,0 +1,45 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { fmtDate, fmtKm } from '../../lib/format';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const trips = await getCollection('trips', ({ data }) => !data.draft);
+  return trips.map((trip) => ({ params: { slug: trip.id }, props: { trip } }));
+}
+
+const { trip } = Astro.props;
+const { data } = trip;
+const { Content } = await render(trip);
+---
+
+<Layout title={data.title} description={`${data.region} · ${fmtKm(data.distanceKm)}`}>
+  <a href={url('/trips')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
+    ← all trips
+  </a>
+
+  <article class="mt-4">
+    <h1 class="font-mono text-3xl font-semibold tracking-tight">{data.title}</h1>
+    <div class="mt-2 font-mono text-sm text-[var(--color-muted)]">
+      {fmtDate(data.date)} · {data.region}
+    </div>
+    <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
+      {data.start} → {data.end} · {fmtKm(data.distanceKm)}
+    </div>
+
+    {
+      data.cover && (
+        <img
+          src={`${import.meta.env.BASE_URL}${data.cover}`.replace(/\/+/g, '/')}
+          alt=""
+          class="mt-6 aspect-[2/1] w-full rounded-lg object-cover"
+        />
+      )
+    }
+
+    <div class="prose mt-8">
+      <Content />
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,40 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { fmtDate } from '../../lib/format';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const tips = await getCollection('tips', ({ data }) => !data.draft);
+  return tips.map((tip) => ({ params: { slug: tip.id }, props: { tip } }));
+}
+
+const { tip } = Astro.props;
+const { data } = tip;
+const { Content } = await render(tip);
+---
+
+<Layout title={data.title} description={data.description}>
+  <a href={url('/tips')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
+    ← all tips
+  </a>
+
+  <article class="mt-4">
+    <h1 class="font-mono text-3xl font-semibold tracking-tight">{data.title}</h1>
+    <div class="mt-2 font-mono text-sm text-[var(--color-muted)]">{fmtDate(data.date)}</div>
+
+    {
+      data.tags.length > 0 && (
+        <div class="mt-3 flex flex-wrap gap-2 font-mono text-xs text-[var(--color-accent)]">
+          {data.tags.map((t) => (
+            <span class="rounded bg-[var(--color-accent-soft)] px-2 py-0.5">#{t}</span>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="prose mt-8">
+      <Content />
+    </div>
+  </article>
+</Layout>
