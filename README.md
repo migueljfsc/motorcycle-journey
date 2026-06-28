@@ -1,8 +1,12 @@
 # Moto Journey
 
+[![Deploy to GitHub Pages](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml/badge.svg)](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml)
+
 A mostly-static site documenting a motorcycle journey: **trips**, **tips & tricks**, a
 **bike catalog**, and **per-bike service logs**. Built with Astro + Tailwind, deployed to
 GitHub Pages.
+
+**Live:** https://migueljfsc.github.io/motorcycle-journey/
 
 ## Develop
 
