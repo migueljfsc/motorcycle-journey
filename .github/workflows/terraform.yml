@@ -1,0 +1,137 @@
+name: Terraform (Cloudflare)
+
+# Plans on PRs that touch the stack, applies on merge to main.
+#
+# Required GitHub secrets:
+#   CLOUDFLARE_API_TOKEN    — provider auth (R2 + Pages + DNS scopes as needed)
+#   CLOUDFLARE_ACCOUNT_ID   — used to build the R2 state endpoint
+#   R2_ACCESS_KEY_ID        — R2 token for the S3-compatible state backend
+#   R2_SECRET_ACCESS_KEY    — "
+# Optional GitHub variables (Settings -> Secrets and variables -> Actions -> Variables):
+#   TF_STATE_BUCKET         — state bucket name; defaults to terraform-tfstate
+
+on:
+  pull_request:
+    paths: ["infrastructure/terraform/cloudflare/**", ".github/workflows/terraform.yml"]
+  push:
+    branches: [main]
+    paths: ["infrastructure/terraform/cloudflare/**", ".github/workflows/terraform.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# Never run two state-mutating jobs at once.
+concurrency:
+  group: tofu-cloudflare
+  cancel-in-progress: false
+
+env:
+  TOFU_VERSION: "1.12.3"
+  WORKDIR: infrastructure/terraform/cloudflare
+  TF_IN_AUTOMATION: "true"
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  # Tofu auto-loads TF_VAR_* into matching input variables (add more secrets here as needed).
+  TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  # S3-compatible backend credentials (R2 token).
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+
+defaults:
+  run:
+    working-directory: infrastructure/terraform/cloudflare
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+
+      - name: Write backend config
+        run: |
+          cat > backend.hcl <<EOF
+          bucket = "${{ vars.TF_STATE_BUCKET || 'terraform-tfstate' }}"
+          key    = "motorcycle-journey/cloudflare/terraform.tfstate"
+          region = "auto"
+          endpoints = { s3 = "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" }
+          skip_credentials_validation = true
+          skip_region_validation      = true
+          skip_requesting_account_id  = true
+          skip_metadata_api_check     = true
+          skip_s3_checksum            = true
+          use_path_style              = true
+          EOF
+
+      - run: tofu init -backend-config=backend.hcl -input=false
+
+      - name: Format check
+        run: tofu fmt -check -recursive
+
+      - run: tofu validate -no-color
+
+      - name: Plan
+        id: plan
+        run: tofu plan -no-color -input=false -var-file=contexts/prod.tfvars
+
+      - name: Comment plan on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          PLAN: ${{ steps.plan.outputs.stdout }}
+        with:
+          script: |
+            const body = `#### Terraform plan (Cloudflare) \`${{ steps.plan.outcome }}\`
+            <details><summary>Show plan</summary>
+
+            \`\`\`hcl
+            ${(process.env.PLAN || '').substring(0, 60000)}
+            \`\`\`
+            </details>`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+            });
+            const marker = 'Terraform plan (Cloudflare)';
+            const existing = comments.find((c) => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
+            }
+
+  apply:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # Add required reviewers to this environment in repo settings to gate applies.
+    environment: cloudflare-production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+
+      - name: Write backend config
+        run: |
+          cat > backend.hcl <<EOF
+          bucket = "${{ vars.TF_STATE_BUCKET || 'terraform-tfstate' }}"
+          key    = "motorcycle-journey/cloudflare/terraform.tfstate"
+          region = "auto"
+          endpoints = { s3 = "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" }
+          skip_credentials_validation = true
+          skip_region_validation      = true
+          skip_requesting_account_id  = true
+          skip_metadata_api_check     = true
+          skip_s3_checksum            = true
+          use_path_style              = true
+          EOF
+
+      - run: tofu init -backend-config=backend.hcl -input=false
+
+      - name: Apply
+        run: tofu apply -auto-approve -input=false -var-file=contexts/prod.tfvars
