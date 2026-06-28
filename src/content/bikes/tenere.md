@@ -5,6 +5,7 @@ model: Ténéré 700
 year: 2024
 status: wishlist
 cover: /covers/tenere.svg
+link: "https://www.yamaha-motor.eu/pt/pt/products/motorcycles/adventure-touring/tenere-700/"
 specs:
   Engine: "689cc parallel-twin (CP2)"
   Power: "72 hp @ 9000 rpm"

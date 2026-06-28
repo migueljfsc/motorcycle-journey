@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { url } from '../lib/url';
+import { url, asset } from '../lib/url';
 
 interface Props {
   bike: CollectionEntry<'bikes'>;
@@ -13,27 +13,30 @@ const statusLabel: Record<typeof data.status, string> = {
   past: 'Previously owned',
   wishlist: 'Wishlist',
 };
+
+// Wishlist bikes link out to the brand site; owned/past link to their detail page.
+const external = data.status === 'wishlist';
+const href = external ? data.link : url(`/bikes/${bike.id}`);
+const linkAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
 <a
-  href={url(`/bikes/${bike.id}`)}
+  href={href}
+  {...linkAttrs}
   class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
 >
   {
     data.cover && (
-      <img
-        src={`${import.meta.env.BASE_URL}${data.cover}`.replace(/\/+/g, '/')}
-        alt=""
-        class="aspect-[2/1] w-full object-cover"
-      />
+      <img src={asset(data.cover)} alt="" class="aspect-[2/1] w-full object-cover" />
     )
   }
   <div class="p-5">
     <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
       {statusLabel[data.status]}
     </div>
-    <h3 class="mt-1 text-lg font-semibold group-hover:text-[var(--color-accent)]">
+    <h3 class="mt-1 flex items-center gap-1.5 text-lg font-semibold group-hover:text-[var(--color-accent)]">
       {data.make} {data.model}
+      {external && <span class="font-mono text-sm text-[var(--color-muted)] group-hover:text-[var(--color-accent)]">↗</span>}
     </h3>
     <div class="mt-1 font-mono text-xs text-[var(--color-muted)]">
       {data.year} · "{data.name}"

@@ -5,6 +5,7 @@ model: R 1300 GS
 year: 2024
 status: wishlist
 cover: /covers/gs.svg
+link: "https://www.bmw-motorrad.pt/pt/models/adventure/r1300gs.html"
 specs:
   Engine: "1300cc boxer-twin"
   Power: "145 hp @ 7750 rpm"

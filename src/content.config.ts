@@ -45,6 +45,8 @@ const bikes = defineCollection({
       )
       .default([]),
     cover: z.string().optional(),
+    photos: z.array(z.string()).default([]),
+    link: z.string().url().optional(),
     draft: z.boolean().default(false),
   }),
 });

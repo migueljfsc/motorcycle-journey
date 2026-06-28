@@ -6,3 +6,8 @@ export function url(path = '/'): string {
   const clean = path.startsWith('/') ? path : `/${path}`;
   return `${BASE}${clean}` || '/';
 }
+
+// Prefix a public/ asset path (e.g. /covers/x.svg) with the base.
+export function asset(path: string): string {
+  return `${import.meta.env.BASE_URL}/${path}`.replace(/\/+/g, '/');
+}

@@ -56,8 +56,12 @@ public/
 ## Adding content — quick ref
 - Trip: `src/content/trips/<slug>.md` — `title, date, region, distanceKm, start, end, cover?, draft?`
 - Tip: `src/content/tips/<slug>.md` — `title, description, date, tags?, draft?`
-- Bike: `src/content/bikes/<slug>.md` — `name, make, model, year, status, specs{}, mods[], cover?, draft?`
-  (`mods`: list of `{name, category?, note?}`; renders a Modifications section, hidden when empty)
+- Bike: `src/content/bikes/<slug>.md` — `name, make, model, year, status, specs{}, mods[], cover?, photos[], link?, draft?`
+  - `mods`: list of `{name, category?, note?}`; renders a Modifications section, hidden when empty.
+  - `photos`: gallery images for the detail-page carousel (falls back to `[cover]`).
+  - `link`: brand URL — **required for `wishlist` bikes** (their card links out; no detail page is generated).
+  - Detail pages are generated only for `owned`/`past` bikes; they show a sticky left tab rail
+    (Overview/Specs/Modifications/Service history) with scrollspy.
 - Service: append to `src/data/services.yaml` — `id, bike(slug), date, mileageKm, work, cost?, notes?`
 
 ## Design tokens (global.css @theme)

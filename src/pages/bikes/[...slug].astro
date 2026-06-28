@@ -2,10 +2,15 @@
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import ServiceTable from '../../components/ServiceTable.astro';
+import Carousel from '../../components/Carousel.astro';
 import { url } from '../../lib/url';
 
 export async function getStaticPaths() {
-  const bikes = await getCollection('bikes', ({ data }) => !data.draft);
+  // Wishlist bikes link out to the brand site — no detail page is generated for them.
+  const bikes = await getCollection(
+    'bikes',
+    ({ data }) => !data.draft && data.status !== 'wishlist',
+  );
   const services = await getCollection('services');
 
   return bikes.map((bike) => ({
@@ -29,78 +34,124 @@ const statusLabel: Record<typeof data.status, string> = {
   wishlist: 'Wishlist',
 };
 const specs = Object.entries(data.specs);
+const photos = data.photos.length ? data.photos : data.cover ? [data.cover] : [];
+
+const tabs = [
+  { id: 'overview', label: 'Overview' },
+  specs.length > 0 ? { id: 'specs', label: 'Specs' } : null,
+  data.mods.length > 0 ? { id: 'mods', label: 'Modifications' } : null,
+  { id: 'service', label: 'Service history' },
+].filter((t): t is { id: string; label: string } => t !== null);
 ---
 
-<Layout title={`${data.make} ${data.model}`} description={`${statusLabel[data.status]} · ${data.year}`}>
+<Layout title={`${data.make} ${data.model}`} description={`${statusLabel[data.status]} · ${data.year}`} wide>
   <a href={url('/bikes')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
     ← the garage
   </a>
 
-  <article class="mt-4">
-    <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
-      {statusLabel[data.status]}
-    </div>
-    <h1 class="mt-1 font-mono text-3xl font-semibold tracking-tight">
-      {data.make} {data.model}
-    </h1>
-    <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">{data.year} · "{data.name}"</div>
+  <div class="mt-4 lg:grid lg:grid-cols-[180px_1fr] lg:gap-10">
+    <!-- Left tab rail (sticky on large screens) -->
+    <aside class="hidden lg:block">
+      <nav class="sticky top-24 flex flex-col gap-1 font-mono text-sm" data-tabs>
+        {
+          tabs.map((t) => (
+            <a
+              href={`#${t.id}`}
+              data-tab={t.id}
+              class="rounded px-3 py-1.5 text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+            >
+              {t.label}
+            </a>
+          ))
+        }
+      </nav>
+    </aside>
 
-    {
-      data.cover && (
-        <img
-          src={`${import.meta.env.BASE_URL}${data.cover}`.replace(/\/+/g, '/')}
-          alt=""
-          class="mt-6 aspect-[2/1] w-full rounded-lg object-cover"
-        />
-      )
-    }
+    <article>
+      <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+        {statusLabel[data.status]}
+      </div>
+      <h1 class="mt-1 font-mono text-3xl font-semibold tracking-tight">
+        {data.make} {data.model}
+      </h1>
+      <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">{data.year} · "{data.name}"</div>
 
-    <div class="prose mt-8">
-      <Content />
-    </div>
+      {photos.length > 0 && <div class="mt-6"><Carousel images={photos} alt={`${data.make} ${data.model}`} /></div>}
 
-    {
-      specs.length > 0 && (
-        <section class="mt-10">
-          <h2 class="mb-4 font-mono text-xl font-semibold">Specs</h2>
-          <dl class="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)] sm:grid-cols-2">
-            {specs.map(([k, v]) => (
-              <div class="bg-[var(--color-card)] px-4 py-3">
-                <dt class="font-mono text-xs uppercase tracking-wide text-[var(--color-muted)]">{k}</dt>
-                <dd class="mt-0.5">{v}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )
-    }
+      <section id="overview" class="scroll-mt-24">
+        <div class="prose mt-8">
+          <Content />
+        </div>
+      </section>
 
-    {
-      data.mods.length > 0 && (
-        <section class="mt-10">
-          <h2 class="mb-4 font-mono text-xl font-semibold">Modifications</h2>
-          <ul class="flex flex-col gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)]">
-            {data.mods.map((m) => (
-              <li class="bg-[var(--color-card)] px-4 py-3">
-                <div class="flex items-baseline justify-between gap-3">
-                  <span class="font-medium">{m.name}</span>
-                  {m.category && (
-                    <span class="shrink-0 font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
-                      {m.category}
-                    </span>
-                  )}
+      {
+        specs.length > 0 && (
+          <section id="specs" class="mt-10 scroll-mt-24">
+            <h2 class="mb-4 font-mono text-xl font-semibold">Specs</h2>
+            <dl class="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)] sm:grid-cols-2">
+              {specs.map(([k, v]) => (
+                <div class="bg-[var(--color-card)] px-4 py-3">
+                  <dt class="font-mono text-xs uppercase tracking-wide text-[var(--color-muted)]">{k}</dt>
+                  <dd class="mt-0.5">{v}</dd>
                 </div>
-                {m.note && <div class="mt-0.5 text-sm text-[var(--color-muted)]">{m.note}</div>}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
+              ))}
+            </dl>
+          </section>
+        )
+      }
 
-    <section class="mt-10">
-      <h2 class="mb-4 font-mono text-xl font-semibold">Service history</h2>
-      <ServiceTable services={services} />
-    </section>
-  </article>
+      {
+        data.mods.length > 0 && (
+          <section id="mods" class="mt-10 scroll-mt-24">
+            <h2 class="mb-4 font-mono text-xl font-semibold">Modifications</h2>
+            <ul class="flex flex-col gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)]">
+              {data.mods.map((m) => (
+                <li class="bg-[var(--color-card)] px-4 py-3">
+                  <div class="flex items-baseline justify-between gap-3">
+                    <span class="font-medium">{m.name}</span>
+                    {m.category && (
+                      <span class="shrink-0 font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+                        {m.category}
+                      </span>
+                    )}
+                  </div>
+                  {m.note && <div class="mt-0.5 text-sm text-[var(--color-muted)]">{m.note}</div>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <section id="service" class="mt-10 scroll-mt-24">
+        <h2 class="mb-4 font-mono text-xl font-semibold">Service history</h2>
+        <ServiceTable services={services} />
+      </section>
+    </article>
+  </div>
 </Layout>
+
+<script>
+  // Scrollspy: highlight the tab whose section is in view.
+  const tabLinks = Array.from(document.querySelectorAll<HTMLElement>('[data-tab]'));
+  const active = 'text-[var(--color-accent)]';
+  const idle = 'text-[var(--color-muted)]';
+  if (tabLinks.length > 0) {
+    const byId = new Map(tabLinks.map((l) => [l.dataset.tab, l]));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries
+          .filter((e) => e.isIntersecting)
+          .forEach((e) => {
+            tabLinks.forEach((l) => l.classList.replace(active, idle));
+            byId.get(e.target.id)?.classList.replace(idle, active);
+          });
+      },
+      { rootMargin: '-30% 0px -60% 0px' },
+    );
+    tabLinks.forEach((l) => {
+      const section = document.getElementById(l.dataset.tab!);
+      if (section) observer.observe(section);
+    });
+  }
+</script>

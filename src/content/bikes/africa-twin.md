@@ -5,6 +5,7 @@ model: CRF1100L Africa Twin
 year: 2024
 status: wishlist
 cover: /covers/africa-twin.svg
+link: "https://www.honda.co.uk/motorcycles/range/adventure/crf1100l-africa-twin.html"
 specs:
   Engine: "1084cc parallel-twin"
   Power: "101 hp @ 7500 rpm"
