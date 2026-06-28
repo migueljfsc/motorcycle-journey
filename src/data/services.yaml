@@ -1,29 +1,29 @@
-- id: cb500x-2024-03
-  bike: cb500x
+- id: cl500-2024-03
+  bike: cl500
   date: 2024-03-12
   mileageKm: 18200
   work: "Oil & filter change, chain clean + adjust"
   cost: 65
   notes: "10W-30 full synthetic. Chain at 35mm slack, set to 30mm."
 
-- id: cb500x-2024-07
-  bike: cb500x
+- id: cl500-2024-07
+  bike: cl500
   date: 2024-07-02
   mileageKm: 22100
   work: "New rear tyre (Michelin Road 6), brake fluid flush"
   cost: 190
   notes: "Old Road 5 squared off after the coast trip."
 
-- id: cb500x-2024-11
-  bike: cb500x
+- id: cl500-2024-11
+  bike: cl500
   date: 2024-11-18
   mileageKm: 26400
   work: "Valve clearance check, air filter, spark plugs"
   cost: 240
   notes: "Intake valves within spec, no shim change needed."
 
-- id: cb500x-2025-04
-  bike: cb500x
+- id: cl500-2025-04
+  bike: cl500
   date: 2025-04-09
   mileageKm: 30050
   work: "Oil & filter change, front pads"

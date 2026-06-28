@@ -3,6 +3,6 @@
     <stop offset="0" stop-color="#1a1a1f"/><stop offset="1" stop-color="#3a2a10"/>
   </linearGradient></defs>
   <rect width="800" height="400" fill="url(#g)"/>
-  <text x="40" y="220" font-family="monospace" font-size="56" fill="#f59e0b">CB500X</text>
-  <text x="42" y="260" font-family="monospace" font-size="22" fill="#8a8a92">Honda · 2021 · owned</text>
+  <text x="40" y="220" font-family="monospace" font-size="56" fill="#f59e0b">CL500</text>
+  <text x="42" y="260" font-family="monospace" font-size="22" fill="#8a8a92">Honda Scrambler · 2024 · owned</text>
 </svg>

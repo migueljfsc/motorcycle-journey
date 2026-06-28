@@ -13,7 +13,7 @@ May, glorious in the valleys. The kind of ride that justifies the whole pre-seas
 
 ## The climb
 
-Switchback after switchback out of Covilhã. The CB500X is in its element here — light
+Switchback after switchback out of Covilhã. The CL500 is in its element here — light
 enough to flick through the tight stuff, torquey enough not to drop a gear every corner.
 
 ## The top

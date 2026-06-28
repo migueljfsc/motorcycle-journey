@@ -14,5 +14,5 @@ specs:
 ---
 
 The dream big-bore ADV for longer continental trips. More suspension travel, more fuel
-range, and the DCT option for slow technical trails. On the list for when the CB500X
+range, and the DCT option for slow technical trails. On the list for when the CL500
 finally needs replacing — or when the budget says yes, whichever comes first.
