@@ -44,7 +44,8 @@ defaults:
 
 jobs:
   plan:
-    if: github.event_name == 'pull_request'
+    # Skip Dependabot PRs: their runs don't receive repo secrets, so init/plan can't auth.
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

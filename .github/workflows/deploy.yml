@@ -1,8 +1,21 @@
 name: Deploy to GitHub Pages
 
+# Builds on PRs (so we can see it compiles before merging, e.g. Dependabot bumps)
+# and on push to main; only main actually deploys.
 on:
   push:
     branches: [main]
+    paths: &build-paths
+      - "src/**"
+      - "public/**"
+      - "astro.config.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "tsconfig.json"
+      - ".github/workflows/deploy.yml"
+  pull_request:
+    paths: *build-paths
   workflow_dispatch:
 
 permissions:
@@ -10,9 +23,9 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment, skip runs queued in between.
+# Don't let PR builds and the main deploy block each other.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -30,6 +43,8 @@ jobs:
 
   deploy:
     needs: build
+    # PRs build only — never deploy.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
