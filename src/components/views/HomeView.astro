@@ -24,7 +24,7 @@ const bikes = await getCollection('bikes', ({ data }) => !data.draft && data.sta
 
 <Layout>
   <section class="mb-14">
-    <h1 class="font-mono text-3xl font-semibold tracking-tight sm:text-4xl">{c.home.heading}</h1>
+    <h1 class="font-mono text-3xl font-semibold tracking-tight text-[var(--color-accent)] sm:text-4xl">{c.home.heading}</h1>
     <p class="mt-3 max-w-prose text-[var(--color-muted)]">{c.home.intro}</p>
   </section>
 

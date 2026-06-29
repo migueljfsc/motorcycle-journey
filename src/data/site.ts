@@ -68,6 +68,7 @@ const dict: Record<Locale, Dict> = {
     footerTagline: 'documenting the ride',
     footerBuilt: 'built with Astro',
     nav: [
+      { label: 'Home', href: '/' },
       { label: 'Trips', href: '/trips' },
       { label: 'Tips', href: '/tips' },
       { label: 'Bikes', href: '/bikes' },
@@ -121,6 +122,7 @@ const dict: Record<Locale, Dict> = {
     footerTagline: 'a documentar a viagem',
     footerBuilt: 'feito com Astro',
     nav: [
+      { label: 'Início', href: '/' },
       { label: 'Viagens', href: '/trips' },
       { label: 'Dicas', href: '/tips' },
       { label: 'Motos', href: '/bikes' },

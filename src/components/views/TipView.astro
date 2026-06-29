@@ -13,30 +13,83 @@ interface Props {
 const { locale, tip } = Astro.props;
 const c = t(locale);
 const { data } = tip;
-const { Content } = await render(tip);
+const { Content, headings } = await render(tip);
+
+// Sidebar tabs from the tip's top-level (##) sections; ids are auto-assigned by Astro.
+const tabs = headings.filter((h) => h.depth === 2);
 ---
 
-<Layout title={data.title} description={data.description}>
+<Layout title={data.title} description={data.description} wide={tabs.length > 0}>
   <a href={localeUrl(locale, '/tips')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
     {c.ui.backToTips}
   </a>
 
-  <article class="mt-4">
-    <h1 class="font-mono text-3xl font-semibold tracking-tight">{data.title}</h1>
-    <div class="mt-2 font-mono text-sm text-[var(--color-muted)]">{fmtDate(data.date, locale)}</div>
-
+  <div class:list={['mt-4', tabs.length > 0 && 'lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-10']}>
     {
-      data.tags.length > 0 && (
-        <div class="mt-3 flex flex-wrap gap-2 font-mono text-xs text-[var(--color-accent)]">
-          {data.tags.map((tag) => (
-            <span class="rounded bg-[var(--color-accent-soft)] px-2 py-0.5">#{tag}</span>
-          ))}
-        </div>
+      tabs.length > 0 && (
+        <aside class="hidden lg:block">
+          <nav class="sticky top-24 flex flex-col gap-1 font-mono text-sm" data-tabs>
+            {tabs.map((tab) => (
+              <a
+                href={`#${tab.slug}`}
+                data-tab={tab.slug}
+                class="rounded px-3 py-1.5 text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+              >
+                {tab.text}
+              </a>
+            ))}
+          </nav>
+        </aside>
       )
     }
 
-    <div class="prose mt-8">
-      <Content />
-    </div>
-  </article>
+    <article class="min-w-0">
+      <h1 class="font-mono text-3xl font-semibold tracking-tight">{data.title}</h1>
+      <div class="mt-2 font-mono text-sm text-[var(--color-muted)]">{fmtDate(data.date, locale)}</div>
+
+      {
+        data.tags.length > 0 && (
+          <div class="mt-3 flex flex-wrap gap-2 font-mono text-xs text-[var(--color-accent)]">
+            {data.tags.map((tag) => (
+              <span class="rounded bg-[var(--color-accent-soft)] px-2 py-0.5">#{tag}</span>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="prose mt-8">
+        <Content />
+      </div>
+    </article>
+  </div>
 </Layout>
+
+<script>
+  // Scrollspy: highlight the tab for the section currently scrolled into view.
+  const tabLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-tab]'));
+  const sections = tabLinks
+    .map((l) => document.getElementById(l.dataset.tab!))
+    .filter((s): s is HTMLElement => s !== null);
+
+  if (tabLinks.length > 0 && sections.length > 0) {
+    const offset = 130;
+    const setActive = () => {
+      let currentId = sections[0].id;
+      for (const s of sections) {
+        if (s.getBoundingClientRect().top <= offset) currentId = s.id;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        currentId = sections[sections.length - 1].id;
+      }
+      for (const l of tabLinks) {
+        const on = l.dataset.tab === currentId;
+        l.style.color = on ? 'var(--color-accent)' : '';
+        l.style.fontWeight = on ? '600' : '';
+        l.style.borderLeft = on ? '2px solid var(--color-accent)' : '2px solid transparent';
+      }
+    };
+    setActive();
+    window.addEventListener('scroll', () => requestAnimationFrame(setActive), { passive: true });
+    window.addEventListener('resize', setActive);
+  }
+</script>

@@ -11,27 +11,81 @@ const { locale } = Astro.props;
 const c = t(locale);
 
 const bikes = await getCollection('bikes', ({ data }) => !data.draft);
+
+// Group in catalog order, dropping empty groups; flatten for the sidebar rail.
+const groups = c.bikeGroups
+  .map((g) => ({ label: g.label, items: bikes.filter((b) => b.data.status === g.status) }))
+  .filter((x) => x.items.length > 0);
+const railBikes = groups.flatMap((x) => x.items);
 ---
 
-<Layout title={c.pages.bikes.title} description={c.pages.bikes.description}>
-  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight">{c.pages.bikes.heading}</h1>
+<Layout title={c.pages.bikes.title} description={c.pages.bikes.description} wide={railBikes.length > 0}>
+  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight text-[var(--color-accent)]">{c.pages.bikes.heading}</h1>
 
-  {
-    c.bikeGroups.map((g) => {
-      const inGroup = bikes.filter((b) => b.data.status === g.status);
-      if (inGroup.length === 0) return null;
-      return (
-        <section class="mb-10">
-          <h2 class="mb-4 font-mono text-sm uppercase tracking-wide text-[var(--color-muted)]">
-            {g.label}
-          </h2>
-          <div class="grid gap-5 sm:grid-cols-2">
-            {inGroup.map((bike) => (
-              <BikeCard bike={bike} />
+  <div class:list={['mt-4', railBikes.length > 0 && 'lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-10']}>
+    {
+      railBikes.length > 0 && (
+        <aside class="hidden lg:block">
+          <nav class="sticky top-24 flex flex-col gap-1 font-mono text-sm" data-tabs>
+            {railBikes.map((bike) => (
+              <a
+                href={`#${bike.id}`}
+                data-tab={bike.id}
+                class="rounded px-3 py-1.5 text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+              >
+                {bike.data.make} {bike.data.model}
+              </a>
             ))}
-          </div>
-        </section>
-      );
-    })
-  }
+          </nav>
+        </aside>
+      )
+    }
+
+    <div class="min-w-0">
+      {
+        groups.map((g) => (
+          <section class="mb-10">
+            <h2 class="mb-4 font-mono text-sm uppercase tracking-wide text-[var(--color-text)]">{g.label}</h2>
+            <div class="grid gap-5 sm:grid-cols-2">
+              {g.items.map((bike) => (
+                <div id={bike.id} class="scroll-mt-24">
+                  <BikeCard bike={bike} />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </div>
 </Layout>
+
+<script>
+  // Scrollspy: highlight the rail entry for the bike currently scrolled into view.
+  const tabLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-tab]'));
+  const sections = tabLinks
+    .map((l) => document.getElementById(l.dataset.tab!))
+    .filter((s): s is HTMLElement => s !== null);
+
+  if (tabLinks.length > 0 && sections.length > 0) {
+    const offset = 130;
+    const setActive = () => {
+      let currentId = sections[0].id;
+      for (const s of sections) {
+        if (s.getBoundingClientRect().top <= offset) currentId = s.id;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        currentId = sections[sections.length - 1].id;
+      }
+      for (const l of tabLinks) {
+        const on = l.dataset.tab === currentId;
+        l.style.color = on ? 'var(--color-accent)' : '';
+        l.style.fontWeight = on ? '600' : '';
+        l.style.borderLeft = on ? '2px solid var(--color-accent)' : '2px solid transparent';
+      }
+    };
+    setActive();
+    window.addEventListener('scroll', () => requestAnimationFrame(setActive), { passive: true });
+    window.addEventListener('resize', setActive);
+  }
+</script>

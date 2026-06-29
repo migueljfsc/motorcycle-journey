@@ -14,16 +14,37 @@ const c = t(locale);
 const tips = (
   await getCollection('tips', ({ id, data }) => !data.draft && id.startsWith(`${locale}/`))
 ).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Sidebar rail: one entry per tip, anchored to its card.
+const entries = tips.map((tip) => ({ tip, slug: tip.id.replace(/^[a-z]{2}\//, '') }));
 ---
 
-<Layout title={c.pages.tips.title} description={c.pages.tips.description}>
-  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight">{c.pages.tips.heading}</h1>
-  <ul class="flex flex-col gap-4">
+<Layout title={c.pages.tips.title} description={c.pages.tips.description} wide={entries.length > 0}>
+  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight text-[var(--color-accent)]">{c.pages.tips.heading}</h1>
+
+  <div class:list={['mt-4', entries.length > 0 && 'lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-10']}>
     {
-      tips.map((tip) => {
-        const slug = tip.id.replace(/^[a-z]{2}\//, '');
-        return (
-          <li>
+      entries.length > 0 && (
+        <aside class="hidden lg:block">
+          <nav class="sticky top-24 flex flex-col gap-1 font-mono text-sm" data-tabs>
+            {entries.map(({ tip, slug }) => (
+              <a
+                href={`#${slug}`}
+                data-tab={slug}
+                class="rounded px-3 py-1.5 text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+              >
+                {tip.data.title}
+              </a>
+            ))}
+          </nav>
+        </aside>
+      )
+    }
+
+    <ul class="flex min-w-0 flex-col gap-4">
+      {
+        entries.map(({ tip, slug }) => (
+          <li id={slug} class="scroll-mt-24">
             <a
               href={localeUrl(locale, `/tips/${slug}`)}
               class="group block rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5 transition-colors hover:border-[var(--color-accent)]"
@@ -42,8 +63,38 @@ const tips = (
               )}
             </a>
           </li>
-        );
-      })
-    }
-  </ul>
+        ))
+      }
+    </ul>
+  </div>
 </Layout>
+
+<script>
+  // Scrollspy: highlight the rail entry for the tip currently scrolled into view.
+  const tabLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-tab]'));
+  const sections = tabLinks
+    .map((l) => document.getElementById(l.dataset.tab!))
+    .filter((s): s is HTMLElement => s !== null);
+
+  if (tabLinks.length > 0 && sections.length > 0) {
+    const offset = 130;
+    const setActive = () => {
+      let currentId = sections[0].id;
+      for (const s of sections) {
+        if (s.getBoundingClientRect().top <= offset) currentId = s.id;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        currentId = sections[sections.length - 1].id;
+      }
+      for (const l of tabLinks) {
+        const on = l.dataset.tab === currentId;
+        l.style.color = on ? 'var(--color-accent)' : '';
+        l.style.fontWeight = on ? '600' : '';
+        l.style.borderLeft = on ? '2px solid var(--color-accent)' : '2px solid transparent';
+      }
+    };
+    setActive();
+    window.addEventListener('scroll', () => requestAnimationFrame(setActive), { passive: true });
+    window.addEventListener('resize', setActive);
+  }
+</script>
