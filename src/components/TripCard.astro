@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import { localeUrl, media } from '../lib/url';
 import { fmtDate, fmtKm } from '../lib/format';
 import { defaultLocale, type Locale } from '../data/site';
-import { tripPhotos } from '../data/media';
+import { tripPhotos, coverPosition } from '../data/media';
 
 interface Props {
   trip: CollectionEntry<'trips'>;
@@ -13,13 +13,14 @@ const { data } = trip;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const slug = trip.id.replace(/^[a-z]{2}\//, ''); // strip "<locale>/"
 const cover = tripPhotos[slug]?.[0] ?? data.cover; // card thumbnail = first photo
+const coverPos = coverPosition[slug] ?? 'center'; // keep the bike in the 2:1 crop
 ---
 
 <a
   href={localeUrl(locale, `/trips/${slug}`)}
   class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
 >
-  {cover && <img src={media(cover)} alt="" class="aspect-[2/1] w-full object-cover" loading="lazy" />}
+  {cover && <img src={media(cover)} alt="" class="aspect-[2/1] w-full object-cover" style={`object-position: ${coverPos}`} loading="lazy" />}
   <div class="p-5">
     <div class="font-mono text-xs text-[var(--color-muted)]">
       {fmtDate(data.date, locale)} · {data.region}
