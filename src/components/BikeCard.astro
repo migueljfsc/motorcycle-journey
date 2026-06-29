@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { localeUrl, asset } from '../lib/url';
+import { localeUrl, media } from '../lib/url';
 import { t, defaultLocale, type Locale } from '../data/site';
 
 interface Props {
@@ -22,7 +22,7 @@ const linkAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : 
   {...linkAttrs}
   class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
 >
-  {data.cover && <img src={asset(data.cover)} alt="" class="aspect-[2/1] w-full object-cover" />}
+  {data.cover && <img src={media(data.cover)} alt="" class="aspect-[2/1] w-full object-cover" loading="lazy" />}
   <div class="p-5">
     <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
       {c.bikeStatusLabel[data.status]}
