@@ -45,7 +45,7 @@ const tabs = [
     {c.ui.backToGarage}
   </a>
 
-  <div class="mt-4 lg:grid lg:grid-cols-[180px_1fr] lg:gap-10">
+  <div class="mt-4 lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-10">
     <aside class="hidden lg:block">
       <nav class="sticky top-24 flex flex-col gap-1 font-mono text-sm" data-tabs>
         {
@@ -62,7 +62,7 @@ const tabs = [
       </nav>
     </aside>
 
-    <article>
+    <article class="min-w-0">
       <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
         {c.bikeStatusLabel[data.status]}
       </div>

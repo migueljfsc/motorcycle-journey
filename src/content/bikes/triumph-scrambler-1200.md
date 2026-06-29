@@ -7,7 +7,7 @@ model: Scrambler 1200
 year: 2024
 status: wishlist
 cover: /covers/triumph-scrambler-1200.jpg
-link: "https://www.triumphmotorcycles.pt/motas/modern-classics/scrambler-1200"
+link: "https://www.triumphmotorcycles.pt/bikes/classic/scrambler/scrambler-1200-x"
 specs:
   Engine: "1200cc parallel-twin"
   Power: "89 hp @ 7000 rpm"
