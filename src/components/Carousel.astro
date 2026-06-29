@@ -1,5 +1,5 @@
 ---
-import { asset } from '../lib/url';
+import { media } from '../lib/url';
 
 interface Props {
   images: string[];
@@ -17,7 +17,7 @@ const single = images.length <= 1;
     {
       images.map((src) => (
         <img
-          src={asset(src)}
+          src={media(src)}
           alt={alt}
           class="aspect-[2/1] w-full shrink-0 grow-0 basis-full snap-center object-cover"
           loading="lazy"

@@ -6,6 +6,7 @@ import Carousel from '../Carousel.astro';
 import { fmtDate, fmtKm } from '../../lib/format';
 import { localeUrl } from '../../lib/url';
 import { t, type Locale } from '../../data/site';
+import { tripPhotos } from '../../data/media';
 
 interface Props {
   locale: Locale;
@@ -16,7 +17,14 @@ const c = t(locale);
 const { data } = trip;
 const { Content } = await render(trip);
 
-const photos = data.photos.length ? data.photos : data.cover ? [data.cover] : [];
+const slug = trip.id.replace(/^[a-z]{2}\//, '');
+const photos = tripPhotos[slug]?.length
+  ? tripPhotos[slug]
+  : data.photos.length
+    ? data.photos
+    : data.cover
+      ? [data.cover]
+      : [];
 
 // Bike ridden: owned/past have a detail page; wishlist links out.
 const ridden = data.bike ? await getEntry(data.bike) : undefined;
