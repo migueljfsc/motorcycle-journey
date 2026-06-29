@@ -25,7 +25,7 @@ const bikeHref = ridden
   : undefined;
 ---
 
-<Layout title={data.title} description={`${data.region} · ${fmtKm(data.distanceKm, locale)}`}>
+<Layout title={data.title} description={data.distanceKm != null ? `${data.region} · ${fmtKm(data.distanceKm, locale)}` : data.region}>
   <a href={localeUrl(locale, '/trips')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
     {c.ui.backToTrips}
   </a>
@@ -36,7 +36,7 @@ const bikeHref = ridden
       {fmtDate(data.date, locale)} · {data.region}
     </div>
     <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
-      {data.start} → {data.end} · {fmtKm(data.distanceKm, locale)}
+      {data.start} → {data.end}{data.distanceKm != null && ` · ${fmtKm(data.distanceKm, locale)}`}
     </div>
 
     {

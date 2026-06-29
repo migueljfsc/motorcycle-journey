@@ -26,7 +26,7 @@ const slug = trip.id.replace(/^[a-z]{2}\//, ''); // strip "<locale>/"
       {data.title}
     </h3>
     <div class="mt-2 font-mono text-xs text-[var(--color-muted)]">
-      {data.start} → {data.end} · {fmtKm(data.distanceKm, locale)}
+      {data.start} → {data.end}{data.distanceKm != null && ` · ${fmtKm(data.distanceKm, locale)}`}
     </div>
   </div>
 </a>
