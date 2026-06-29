@@ -20,7 +20,7 @@ const railBikes = groups.flatMap((x) => x.items);
 ---
 
 <Layout title={c.pages.bikes.title} description={c.pages.bikes.description} wide={railBikes.length > 0}>
-  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight text-[var(--color-accent)]">{c.pages.bikes.heading}</h1>
+  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight">{c.pages.bikes.heading}</h1>
 
   <div class:list={['mt-4', railBikes.length > 0 && 'lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-10']}>
     {

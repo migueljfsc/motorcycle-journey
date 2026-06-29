@@ -20,7 +20,7 @@ const entries = tips.map((tip) => ({ tip, slug: tip.id.replace(/^[a-z]{2}\//, ''
 ---
 
 <Layout title={c.pages.tips.title} description={c.pages.tips.description} wide={entries.length > 0}>
-  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight text-[var(--color-accent)]">{c.pages.tips.heading}</h1>
+  <h1 class="mb-6 font-mono text-3xl font-semibold tracking-tight">{c.pages.tips.heading}</h1>
 
   <div class:list={['mt-4', entries.length > 0 && 'lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-10']}>
     {

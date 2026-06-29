@@ -25,7 +25,7 @@ const seg = '/' + (path.split('/').filter(Boolean)[0] ?? '');
               href={localeUrl(locale, tab.href)}
               class:list={[
                 'rounded px-3 py-1.5 transition-colors hover:text-[var(--color-accent)]',
-                seg === tab.href ? 'text-[var(--color-accent)]' : 'text-[var(--color-muted)]',
+                seg === tab.href ? 'text-[var(--color-accent)]' : 'text-[var(--color-text)]',
               ]}
             >
               {tab.label}
