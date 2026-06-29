@@ -48,7 +48,7 @@ jobs:
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: opentofu/setup-opentofu@v2
         with:
@@ -111,7 +111,7 @@ jobs:
     # Add required reviewers to this environment in repo settings to gate applies.
     environment: cloudflare-production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: opentofu/setup-opentofu@v2
         with:
