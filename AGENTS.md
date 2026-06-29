@@ -94,6 +94,16 @@ public/
   - Detail pages (owned/past only) show a sticky left tab rail with scrollspy.
 - Service: append to `src/data/services.yaml` — `id, bike(slug), date, work{en,pt}, mileageKm?, notes?{en,pt}`
 
+## Images
+- Resolve any image reference with **`media(src)`** in `src/lib/url.ts`: absolute URLs pass
+  through, `/…` paths are local `public/` assets, anything else is an **R2 object key** served
+  from `MEDIA_BASE` (segments URL-encoded).
+- **Trip galleries** live in `src/data/media.ts` (`tripPhotos[slug]` → R2 keys, shared across
+  EN/PT; the card thumbnail is the first key). Frontmatter `cover`/`photos` are fallbacks.
+- Photos are in the `motorcycle-journey-media` R2 bucket under `trips/<yyyymmdd>-<slug>/`,
+  currently served via the public `r2.dev` URL (`MEDIA_BASE`). Swap `MEDIA_BASE` for a custom
+  domain later — one line, no content changes. (HEIC is excluded; browsers can't render it.)
+
 ## Design tokens (global.css @theme)
 | Token | Value | Use |
 |-------|-------|-----|
