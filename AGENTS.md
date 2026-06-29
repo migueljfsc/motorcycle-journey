@@ -81,8 +81,9 @@ public/
 
 ## Adding content — quick ref
 - Trip: `src/content/trips/<locale>/<slug>.md` (one per language) —
-  `title, date, region, distanceKm, start, end, bike?, cover?, draft?`. `bike` = a bike slug;
-  surfaces the trip under "Trips on this bike". Keep the same `<slug>` across locales.
+  `title, date, region, distanceKm?, start, end, bike?, cover?, photos[], draft?`. `bike` = a
+  bike slug; surfaces the trip under "Trips on this bike". `photos` feeds the detail-page
+  carousel (falls back to `[cover]`). Keep the same `<slug>` across locales.
 - Tip: `src/content/tips/<locale>/<slug>.md` — `title, description, date, tags?, draft?`
 - Bike (single file): `src/content/bikes/<slug>.md` —
   `name{en,pt}, make, model, year, status, purchased?, specs{}, description{en[],pt[]}, mods[], cover?, photos[], link?, draft?`
@@ -92,6 +93,16 @@ public/
   - `link`: brand URL — **required for `wishlist` bikes** (card links out; no detail page generated).
   - Detail pages (owned/past only) show a sticky left tab rail with scrollspy.
 - Service: append to `src/data/services.yaml` — `id, bike(slug), date, work{en,pt}, mileageKm?, notes?{en,pt}`
+
+## Images
+- Resolve any image reference with **`media(src)`** in `src/lib/url.ts`: absolute URLs pass
+  through, `/…` paths are local `public/` assets, anything else is an **R2 object key** served
+  from `MEDIA_BASE` (segments URL-encoded).
+- **Trip galleries** live in `src/data/media.ts` (`tripPhotos[slug]` → R2 keys, shared across
+  EN/PT; the card thumbnail is the first key). Frontmatter `cover`/`photos` are fallbacks.
+- Photos are in the `motorcycle-journey-media` R2 bucket under `trips/<yyyymmdd>-<slug>/`,
+  currently served via the public `r2.dev` URL (`MEDIA_BASE`). Swap `MEDIA_BASE` for a custom
+  domain later — one line, no content changes. (HEIC is excluded; browsers can't render it.)
 
 ## Design tokens (global.css @theme)
 | Token | Value | Use |
