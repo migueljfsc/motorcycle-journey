@@ -13,11 +13,12 @@ const trips = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     region: z.string(),
-    distanceKm: z.number(),
+    distanceKm: z.number().optional(),
     start: z.string(),
     end: z.string(),
     bike: reference('bikes').optional(),
     cover: z.string().optional(),
+    photos: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
 });
