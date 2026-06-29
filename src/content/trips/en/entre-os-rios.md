@@ -7,4 +7,4 @@ end: "Entre-os-Rios"
 bike: cl500
 ---
 
-An evening ride along the riverside to Entre-os-Rios, finished with dinner at a local tasca.
+Another ride after work, following the Douro inland with no real plan. I stopped randomly at a small river beach and stayed a while to read and watch the sunset. By the time I left I was getting hungry, so I had dinner at a local tasca before heading back.

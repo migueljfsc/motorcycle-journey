@@ -7,5 +7,4 @@ end: "Miradouro Baloiço do Cu Grande"
 bike: cl500
 ---
 
-Followed the Douro out of Porto, chasing the river upstream all the way to the hilltop
-swing — the one that hangs you out over the whole valley.
+My very first proper ride. I found this viewpoint on Google Maps and decided to go check it out. Rode up after lunch, climbed all the way to the hilltop and took in the view over the valley. Couldn't stay long though, I had tickets to Primavera Sound that evening.

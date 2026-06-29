@@ -7,4 +7,4 @@ end: "Rio Ave"
 bike: cl500
 ---
 
-A quick run north out of Porto to the Ave river and back.
+A quick ride out to the Rio Ave in the late afternoon. Found a well-hidden little spot right by the water and stayed a while, relaxing and taking in the views.

@@ -7,4 +7,4 @@ end: "Praia da Terra Nova, Mindelo"
 bike: cl500
 ---
 
-Um passeio ao fim do dia até à praia da Terra Nova, em Mindelo.
+Um passeio depois do trabalho sem destino certo. Segui a costa para norte até dar com um bar simpático à beira-mar, onde parei para ler e ver o pôr do sol. Aproveitei para comer qualquer coisa.

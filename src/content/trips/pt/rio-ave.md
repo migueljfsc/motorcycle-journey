@@ -7,4 +7,4 @@ end: "Rio Ave"
 bike: cl500
 ---
 
-Uma saída rápida para norte do Porto até ao rio Ave e de volta.
+Uma saída rápida até ao rio Ave ao fim da tarde. Encontrei um cantinho bem escondido mesmo à beira da água e fiquei algum tempo a descontrair e a apreciar a vista.

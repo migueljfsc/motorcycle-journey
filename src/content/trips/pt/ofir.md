@@ -7,4 +7,4 @@ end: "Ofir"
 bike: cl500
 ---
 
-Até à costa em Ofir para apanhar a luz do fim do dia à beira-mar.
+Fui até Ofir pelas estradas nacionais, sem pressa. Vi o pôr do sol num sítio calmo junto à costa antes de voltar para casa. A essa hora já estava a escurecer e um pouco frio, por isso voltei pela autoestrada. Parece um bom sítio para voltar e passar um dia de praia.
