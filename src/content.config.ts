@@ -18,6 +18,7 @@ const trips = defineCollection({
     end: z.string(),
     bike: reference('bikes').optional(),
     cover: z.string().optional(),
+    photos: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
 });

@@ -81,8 +81,9 @@ public/
 
 ## Adding content — quick ref
 - Trip: `src/content/trips/<locale>/<slug>.md` (one per language) —
-  `title, date, region, distanceKm, start, end, bike?, cover?, draft?`. `bike` = a bike slug;
-  surfaces the trip under "Trips on this bike". Keep the same `<slug>` across locales.
+  `title, date, region, distanceKm?, start, end, bike?, cover?, photos[], draft?`. `bike` = a
+  bike slug; surfaces the trip under "Trips on this bike". `photos` feeds the detail-page
+  carousel (falls back to `[cover]`). Keep the same `<slug>` across locales.
 - Tip: `src/content/tips/<locale>/<slug>.md` — `title, description, date, tags?, draft?`
 - Bike (single file): `src/content/bikes/<slug>.md` —
   `name{en,pt}, make, model, year, status, purchased?, specs{}, description{en[],pt[]}, mods[], cover?, photos[], link?, draft?`
