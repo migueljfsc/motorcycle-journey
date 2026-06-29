@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#1f5f4a"/><stop offset="1" stop-color="#0e0e10"/>
-  </linearGradient></defs>
-  <rect width="800" height="400" fill="url(#g)"/>
-  <polygon points="0,400 220,200 380,310 560,160 800,400" fill="#0e1a14"/>
-  <text x="40" y="350" font-family="monospace" font-size="30" fill="#ececec">Gerês · 220 km</text>
-</svg>
