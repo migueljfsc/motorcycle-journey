@@ -25,6 +25,7 @@
 - id: cl500-2026-05
   bike: cl500
   date: 2026-05-26
+  mileageKm: 6005
   work:
     en: "Wash · Lubrication · Tyre pressure (29 psi, 36 psi)"
     pt: "Lavagem · Lubrificação · Pressão pneus (29 psi, 36 psi)"
