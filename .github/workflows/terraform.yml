@@ -50,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: opentofu/setup-opentofu@v2
+      - uses: opentofu/setup-opentofu@v2.0.1
         with:
           tofu_version: ${{ env.TOFU_VERSION }}
 
@@ -113,7 +113,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: opentofu/setup-opentofu@v2
+      - uses: opentofu/setup-opentofu@v2.0.1
         with:
           tofu_version: ${{ env.TOFU_VERSION }}
 
