@@ -1,8 +1,8 @@
 // Trip photo keys in R2, grouped by trip slug (shared across EN/PT).
-// Generated from the motorcycle-journey-media bucket. Change MEDIA_BASE if the
-// public host changes (e.g. moving off r2.dev onto a custom domain).
+// Generated from the motorcycle-journey-media bucket, served by its custom domain
+// (OpenTofu, infrastructure/terraform/cloudflare/r2.tf).
 
-export const MEDIA_BASE = "https://pub-e11227dc8e95460a9f306e7e75c16db4.r2.dev";
+export const MEDIA_BASE = "https://moto-journey-img.migueljfsc.dev";
 
 // Vertical focal point (object-position) for each trip's card thumbnail. Most
 // trip covers are portrait shots with the bike low in the frame, so a centred
