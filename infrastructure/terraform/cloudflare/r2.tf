@@ -22,6 +22,15 @@ resource "cloudflare_r2_custom_domain" "media" {
   enabled     = true
 }
 
+# The bucket's r2.dev URL, OFF. It was switched on by hand before the custom domain existed;
+# Cloudflare rate-limits it and does not mean it for production, and the site now reads from
+# the custom domain above. Stated here so it cannot be switched back on without a diff.
+resource "cloudflare_r2_managed_domain" "media" {
+  account_id  = var.cloudflare_account_id
+  bucket_name = cloudflare_r2_bucket.media.name
+  enabled     = false
+}
+
 # CORS so the images can be requested from the site origin (and previews).
 resource "cloudflare_r2_bucket_cors" "media" {
   account_id  = var.cloudflare_account_id
