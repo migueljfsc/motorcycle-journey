@@ -10,8 +10,8 @@ resource "cloudflare_r2_bucket" "media" {
   storage_class = var.r2_storage_class
 }
 
-# Public access via a custom domain (img.<domain>). Created only when a domain is set;
-# until then, enable the temporary r2.dev dev URL manually in the dashboard for testing.
+# Public access via a custom domain (<site_hostname>-img.<domain>). Created only when a domain
+# is set.
 resource "cloudflare_r2_custom_domain" "media" {
   count = local.has_domain ? 1 : 0
 

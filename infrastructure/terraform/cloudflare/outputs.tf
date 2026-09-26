@@ -12,8 +12,3 @@ output "r2_public_url" {
   value       = local.has_domain ? "https://${local.r2_public_fqdn}" : null
   description = "Public base URL for served images (null until a domain is configured)."
 }
-
-output "pages_project_subdomain" {
-  value       = var.enable_pages ? "${local.pages_project_name}.pages.dev" : null
-  description = "Default Pages URL (null until Pages is enabled)."
-}

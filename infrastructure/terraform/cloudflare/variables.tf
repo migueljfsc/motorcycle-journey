@@ -46,54 +46,25 @@ variable "r2_storage_class" {
   description = "Default storage class for the media bucket (Standard | InfrequentAccess)."
 }
 
-###################### SITE HOSTING (forward-looking) ######################
-
-variable "github_owner" {
-  type        = string
-  default     = "migueljfsc"
-  description = "GitHub owner for the Cloudflare Pages git integration."
-}
-
-variable "github_repo" {
-  type        = string
-  default     = "motorcycle-journey"
-  description = "GitHub repository name for the Cloudflare Pages git integration."
-}
-
-variable "production_branch" {
-  type        = string
-  default     = "main"
-  description = "Branch that Pages deploys to production."
-}
-
-variable "node_version" {
-  type        = string
-  default     = "22"
-  description = "Node version used by the Pages build."
-}
-
-variable "enable_pages" {
-  type        = bool
-  default     = false
-  description = <<-EOT
-    Create the Cloudflare Pages project. Requires the GitHub <-> Cloudflare connection to be
-    authorized once in the dashboard (OAuth) before apply. Keep false until you migrate hosting.
-  EOT
-}
-
-###################### CUSTOM DOMAIN (forward-looking) ######################
+###################### DOMAIN ######################
 
 variable "domain" {
   type        = string
   default     = ""
   description = <<-EOT
-    Apex domain managed in this Cloudflare account (e.g. "motojourney.dev"). When empty, all
-    DNS and custom-domain resources are skipped. Set it once the domain is on Cloudflare.
+    The personal apex domain (migueljfsc.dev), shared across projects; this stack creates
+    names under `site_hostname` only. When empty, custom-domain resources are skipped.
   EOT
+}
+
+variable "site_hostname" {
+  type        = string
+  default     = "moto-journey"
+  description = "The site's subdomain. The Worker's custom domain for it is in wrangler.jsonc."
 }
 
 variable "r2_public_hostname" {
   type        = string
   default     = "img"
-  description = "Subdomain used to publicly serve the R2 media bucket (e.g. img.<domain>)."
+  description = "Suffix of the hostname serving the media bucket: <site_hostname>-<this>.<domain>."
 }

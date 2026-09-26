@@ -8,8 +8,7 @@ environment = "prod"
 # ---- R2 ----
 r2_location = "WEUR" # Western Europe
 
-# ---- Site hosting (enable when migrating off GitHub Pages) ----
-enable_pages = false
-
-# ---- Custom domain (set once the domain is on Cloudflare) ----
-domain = ""
+# ---- Domain ----
+# Personal and shared across projects; this stack owns only moto-journey* names. The site is a
+# Worker (wrangler.jsonc); this stack serves the photos at moto-journey-img.migueljfsc.dev.
+domain = "migueljfsc.dev"

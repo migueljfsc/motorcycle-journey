@@ -1,12 +1,12 @@
 # Moto Journey
 
-[![Deploy to GitHub Pages](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml/badge.svg)](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml)
+[![Deploy to Cloudflare](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml/badge.svg)](https://github.com/migueljfsc/motorcycle-journey/actions/workflows/deploy.yml)
 
 A mostly-static site documenting a motorcycle journey: **trips**, **tips & tricks**, a
 **bike catalog**, and **per-bike service logs**. Built with Astro + Tailwind, bilingual
-(EN / PT), deployed to GitHub Pages.
+(EN / PT), deployed to Cloudflare.
 
-**Live:** https://migueljfsc.github.io/motorcycle-journey/ (PT at `/pt/`)
+**Live:** https://moto-journey.migueljfsc.dev (PT at `/pt/`)
 
 ## Develop
 
@@ -47,9 +47,7 @@ for npm and GitHub Actions, with a 7-day cooldown before a new release is propos
 
 ## Deploy
 
-Pushing to `main` triggers `.github/workflows/deploy.yml` (Astro → GitHub Pages).
-
-**One-time setup:** Repo → Settings → Pages → Source: **GitHub Actions**.
-
-Served at `https://migueljfsc.github.io/motorcycle-journey/`. The subpath is configured via
-`base` in `astro.config.mjs`; if a custom domain is added, set `base: '/'` and update `site`.
+Pushing to `main` triggers `.github/workflows/deploy.yml`: Astro builds, and wrangler deploys
+`dist/` as a static-assets Worker on `https://moto-journey.migueljfsc.dev` (`wrangler.jsonc`).
+The media bucket and its domain are OpenTofu in `infrastructure/terraform/cloudflare`,
+applied by `.github/workflows/terraform.yml`.

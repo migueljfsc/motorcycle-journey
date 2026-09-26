@@ -11,7 +11,8 @@ page edit.
 - **Styles**: Tailwind v4 via `@tailwindcss/vite`; design tokens in `src/styles/global.css` `@theme`
 - **Fonts**: IBM Plex Mono (headings/mono), Inter (body) via Google Fonts
 - **Package manager**: pnpm (Node >= 22.12)
-- **Deploy**: GitHub Pages via `withastro/action` (`.github/workflows/deploy.yml`)
+- **Deploy**: Cloudflare Worker static assets at `https://moto-journey.migueljfsc.dev`
+  (`wrangler.jsonc`), deployed by `.github/workflows/deploy.yml`; infra is OpenTofu (below)
 - **Dependency updates**: Dependabot weekly (Sun 20:00 Europe/Lisbon), 7-day release cooldown
   (`.github/dependabot.yml`)
 
@@ -28,10 +29,18 @@ page edit.
   saves choice to `localStorage['moto-lang']`); `Layout.astro` has an inline pre-paint script
   that honors that saved choice.
 
-## GitHub Pages base path
-Served at a project subpath: `https://migueljfsc.github.io/motorcycle-journey/`.
-`astro.config.mjs` sets `base: '/motorcycle-journey'`. Use `localeUrl()` / `asset()` so links
-resolve under the subpath. If a custom domain is added: `base: '/'` + update `site`.
+## Hosting
+Served from the root of `https://moto-journey.migueljfsc.dev` — a subdomain of the personal
+`migueljfsc.dev`, shared across projects; this repo owns only `moto-journey*` names. Two halves,
+never mixed:
+- **The site** — a static-assets Worker with no code (`wrangler.jsonc`, custom domain there
+  because wrangler reconciles a Worker's routes on every deploy), deployed by `deploy.yml` on
+  push to `main`. PRs build only. Never `wrangler deploy` by hand.
+- **Everything around it** — OpenTofu in `infrastructure/terraform/cloudflare` (the media R2
+  bucket, its CORS and its `moto-journey-img.` custom domain), applied by `terraform.yml`.
+
+Photos are R2 object keys resolved against `MEDIA_BASE` (`src/data/media.ts`). Keep using
+`localeUrl()` / `asset()` for links: `base` is `/` now, but they cost nothing and survive a move.
 
 ## Single source of truth
 - **`src/data/site.ts`** is canonical for site chrome & copy, **per-locale** via `t(locale)`:

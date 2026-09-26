@@ -1,26 +1,27 @@
 # Cloudflare infrastructure
 
-Terraform/OpenTofu for hosting Moto Journey on Cloudflare. Single stack, files split by concern
-(mirrors the per-stack layout in `solverde/fichas-infra`).
+Terraform/OpenTofu for what surrounds Moto Journey on Cloudflare. Single stack, files split by
+concern. The site itself is a static-assets Worker deployed by wrangler
+(`.github/workflows/deploy.yml`, `wrangler.jsonc`) — that deploy cannot be Terraform, because it
+ends in an upload token Cloudflare expires after an hour.
 
 ## What it manages
 
 | File | Resource | Status |
 |------|----------|--------|
-| `r2.tf` | R2 media bucket (+ CORS, + custom domain) | **active** (bucket + CORS); custom domain gated on `domain` |
-| `pages.tf` | Cloudflare Pages project (+ domain binding) | gated on `enable_pages` |
-| `dns.tf` | Apex → Pages DNS record | gated on `enable_pages` + `domain` |
-| `data.tf` | Zone lookup | gated on `domain` |
+| `r2.tf` | R2 media bucket, CORS, and its custom domain `moto-journey-img.migueljfsc.dev` | **active** |
+| `data.tf` | Zone lookup | **active** |
 
-Today only the **R2 bucket** (image hosting) is created. Pages + custom domain are written and
-validated but left disabled until you migrate hosting / bring a domain onto Cloudflare.
+`migueljfsc.dev` is a personal domain shared across projects: this stack creates only
+`moto-journey*` names. The apex and its redirects belong to the portfolio.
 
 ## Prerequisites
 
 1. **API token** (provider auth) — create at Cloudflare → My Profile → API Tokens with:
-   - Account · Workers R2 Storage · Edit
-   - Account · Cloudflare Pages · Edit (only needed when `enable_pages = true`)
-   - Zone · DNS · Edit and Zone · Zone · Read (only needed once `domain` is set)
+   - Account · Workers R2 Storage · Edit — bucket, CORS, media custom domain
+   - Account · Workers Scripts · Edit — the site deploy (same token, `deploy.yml`)
+   - Zone `migueljfsc.dev` · Workers Routes · Edit — the site's custom domain
+   - Zone `migueljfsc.dev` · Zone · Read, and DNS · Edit — zone lookup, the media domain's record
    ```sh
    export CLOUDFLARE_API_TOKEN=...        # provider auth
    ```
