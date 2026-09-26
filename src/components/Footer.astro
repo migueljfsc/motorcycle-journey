@@ -10,13 +10,14 @@ const year = new Date().getFullYear();
   <div class="mx-auto max-w-3xl px-5 py-8 font-mono text-xs text-[var(--color-muted)]">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <p>© {year} · {c.footerTagline} · {c.footerBuilt}</p>
-      <!-- A plain link in Buy Me a Coffee's colours, not their embed script: the script would
-           load third-party code, and send every visitor's IP to them, on every page view. -->
+      <!-- A plain link in the site's own accent, not Buy Me a Coffee's embed script: the
+           script would load third-party code, and send every visitor's IP to them, on every
+           page view. -->
       <a
         href="https://buymeacoffee.com/migueljfsc"
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center gap-1.5 rounded-lg border border-black bg-[#FFDD00] px-3 py-1.5 font-sans text-sm font-semibold !text-black no-underline transition hover:brightness-95"
+        class="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 py-1.5 font-sans text-sm font-semibold !text-black no-underline transition hover:brightness-110"
       >
         <span aria-hidden="true">☕</span>
         {c.footerCoffee}
