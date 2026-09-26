@@ -33,6 +33,7 @@ interface Dict {
   description: string;
   footerTagline: string;
   footerBuilt: string;
+  footerCoffee: string;
   nav: NavLink[];
   home: {
     heading: string;
@@ -67,6 +68,7 @@ const dict: Record<Locale, Dict> = {
     description: 'Trips, tips, a bike catalog and service logs from the road.',
     footerTagline: 'documenting the ride',
     footerBuilt: 'built with Astro',
+    footerCoffee: 'Buy me a coffee',
     nav: [
       { label: 'Home', href: '/' },
       { label: 'Trips', href: '/trips' },
@@ -121,6 +123,7 @@ const dict: Record<Locale, Dict> = {
     description: 'Viagens, dicas, um catálogo de motos e registos de manutenção da estrada.',
     footerTagline: 'a documentar a viagem',
     footerBuilt: 'feito com Astro',
+    footerCoffee: 'Paga-me um café',
     nav: [
       { label: 'Início', href: '/' },
       { label: 'Viagens', href: '/trips' },
