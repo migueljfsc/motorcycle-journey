@@ -1,9 +1,9 @@
 ---
-title: "Evening Ride to Entre-os-Rios"
+title: "Evening Ride along the Douro"
 date: 2025-07-22
 region: "Portugal — Norte"
 start: "Porto"
-end: "Entre-os-Rios"
+end: "Avintes"
 bike: cl500
 ---
 

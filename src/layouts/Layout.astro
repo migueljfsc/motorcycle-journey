@@ -43,15 +43,28 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Theme before paint: saved choice, else the OS preference. */}
+    <script is:inline>
+      (function () {
+        var theme = 'dark';
+        try {
+          var saved = localStorage.getItem('moto-theme');
+          if (saved === 'light' || saved === 'dark') theme = saved;
+          else if (window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light';
+        } catch (e) {}
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"
       rel="stylesheet"
     />
     <title>{fullTitle}</title>
   </head>
   <body>
     <Nav />
-    <main class:list={['mx-auto px-5 py-10', wide ? 'max-w-5xl' : 'max-w-3xl']}>
+    <slot name="hero" />
+    <main class:list={['mx-auto px-5 py-10 sm:py-14', wide ? 'max-w-6xl' : 'max-w-3xl']}>
       <slot />
     </main>
     <Footer />

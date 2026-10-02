@@ -13,12 +13,12 @@ const c = t(locale);
 
 {
   services.length === 0 ? (
-    <p class="font-mono text-sm text-[var(--color-muted)]">{c.ui.noService}</p>
+    <p class="label text-muted">{c.ui.noService}</p>
   ) : (
-    <div class="overflow-x-auto rounded-lg border border-[var(--color-border)]">
+    <div class="overflow-x-auto rounded border border-line">
       <table class="w-full text-left text-sm">
-        <thead class="font-mono text-xs uppercase tracking-wide text-[var(--color-muted)]">
-          <tr class="border-b border-[var(--color-border)]">
+        <thead class="label text-muted">
+          <tr class="border-b border-line">
             <th class="px-4 py-3 font-medium">{c.ui.tableDate}</th>
             <th class="px-4 py-3 font-medium">{c.ui.tableMileage}</th>
             <th class="px-4 py-3 font-medium">{c.ui.tableWork}</th>
@@ -26,17 +26,17 @@ const c = t(locale);
         </thead>
         <tbody>
           {services.map((s) => (
-            <tr class="border-b border-[var(--color-border)] last:border-0 align-top">
-              <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-[var(--color-muted)]">
+            <tr class="border-b border-line last:border-0 align-top">
+              <td class="whitespace-nowrap px-4 py-3 label text-muted">
                 {fmtDate(s.data.date, locale)}
               </td>
-              <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-[var(--color-muted)]">
+              <td class="whitespace-nowrap px-4 py-3 label text-muted">
                 {s.data.mileageKm != null ? fmtKm(s.data.mileageKm, locale) : '—'}
               </td>
               <td class="px-4 py-3">
                 {s.data.work[locale]}
                 {s.data.notes && (
-                  <div class="mt-1 text-xs text-[var(--color-muted)]">{s.data.notes[locale]}</div>
+                  <div class="mt-1 text-sm text-muted">{s.data.notes[locale]}</div>
                 )}
               </td>
             </tr>

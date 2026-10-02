@@ -1,12 +1,15 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { localeUrl, media } from '../lib/url';
+import { fmtMonthYear } from '../lib/format';
 import { t, defaultLocale, type Locale } from '../data/site';
 
 interface Props {
   bike: CollectionEntry<'bikes'>;
+  /** Large horizontal layout with the bike's description (home page). */
+  feature?: boolean;
 }
-const { bike } = Astro.props;
+const { bike, feature = false } = Astro.props;
 const { data } = bike;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const c = t(locale);
@@ -20,19 +23,30 @@ const linkAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : 
 <a
   href={href}
   {...linkAttrs}
-  class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
+  class:list={['group block text-ink', feature && 'grid items-center gap-6 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-10']}
 >
-  {data.cover && <img src={media(data.cover)} alt="" class="aspect-[2/1] w-full object-cover" loading="lazy" />}
-  <div class="p-5">
-    <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
-      {c.bikeStatusLabel[data.status]}
-    </div>
-    <h3 class="mt-1 flex items-center gap-1.5 text-lg font-semibold group-hover:text-[var(--color-accent)]">
-      {data.make} {data.model}
-      {external && <span class="font-mono text-sm text-[var(--color-muted)] group-hover:text-[var(--color-accent)]">↗</span>}
+  <div class="overflow-hidden rounded bg-surface">
+    {
+      data.cover && (
+        <img
+          src={media(data.cover)}
+          alt=""
+          class:list={['w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]', feature ? 'aspect-[3/2]' : 'aspect-[4/3]']}
+          loading="lazy"
+        />
+      )
+    }
+  </div>
+  <div class:list={[!feature && 'mt-3']}>
+    <div class="label text-sun">{c.bikeStatusLabel[data.status]}{data.purchased && feature && <span class="text-faint"> · {c.ui.ownedSince} {fmtMonthYear(data.purchased, locale)}</span>}</div>
+    <h3 class:list={['font-display font-extrabold leading-[0.95] transition-colors group-hover:text-sun', feature ? 'mt-1 text-5xl sm:text-6xl' : 'mt-0.5 text-2xl']}>
+      {data.make} {data.model}{external && <span class="whitespace-nowrap text-base text-faint" aria-hidden="true">&nbsp;↗</span>}
     </h3>
-    <div class="mt-1 font-mono text-xs text-[var(--color-muted)]">
-      {data.year} · "{data.name[locale]}"
-    </div>
+    <p class:list={['italic text-muted', feature ? 'mt-2 text-xl' : 'mt-1']}>
+      “{data.name[locale]}”, {data.year}
+    </p>
+    {feature && data.description[locale][0] && (
+      <p class="mt-4 max-w-[46ch] leading-relaxed text-muted">{data.description[locale][0]}</p>
+    )}
   </div>
 </a>

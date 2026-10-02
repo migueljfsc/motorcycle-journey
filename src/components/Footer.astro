@@ -1,27 +1,28 @@
 ---
-import { t, defaultLocale, type Locale } from '../data/site';
+import { site, t, defaultLocale, type Locale } from '../data/site';
+import CoffeeLink from './CoffeeLink.astro';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const c = t(locale);
 const year = new Date().getFullYear();
 ---
 
-<footer class="mt-20 border-t border-[var(--color-border)]">
-  <div class="mx-auto max-w-3xl px-5 py-8 font-mono text-xs text-[var(--color-muted)]">
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <p>© {year} · {c.footerTagline} · {c.footerBuilt}</p>
-      <!-- A plain link in the site's own accent, not Buy Me a Coffee's embed script: the
-           script would load third-party code, and send every visitor's IP to them, on every
-           page view. -->
-      <a
-        href="https://buymeacoffee.com/migueljfsc"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-accent)] px-3 py-1.5 font-sans text-sm font-semibold !text-black no-underline transition hover:brightness-110"
-      >
-        <span aria-hidden="true">☕</span>
-        {c.footerCoffee}
-      </a>
+<footer class="mt-24 border-t border-line">
+  <div class="mx-auto grid max-w-6xl items-end gap-6 px-5 py-10 sm:grid-cols-[1fr_auto_1fr]">
+    <div>
+      <p class="font-display text-3xl font-extrabold tracking-wide text-ink">{c.footerTagline}.</p>
+      <p class="label mt-1 text-faint">© {year} {site.name}</p>
+    </div>
+    <a
+      href="https://migueljfsc.dev/"
+      target="_blank"
+      rel="noopener"
+      class="label justify-self-start text-lg text-muted underline decoration-sun decoration-2 underline-offset-4 transition-colors hover:text-sun sm:justify-self-center"
+    >
+      {c.footerAbout}
+    </a>
+    <div class="sm:justify-self-end">
+      <CoffeeLink />
     </div>
   </div>
 </footer>

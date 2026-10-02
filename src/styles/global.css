@@ -1,25 +1,63 @@
 @import "tailwindcss";
 
-/* Design tokens — Tailwind v4 @theme. Dark, road-trip palette. */
-@theme {
-  --color-bg: #0e0e10;
-  --color-card: #17171a;
-  --color-border: #26262b;
-  --color-text: #ececec;
-  --color-muted: #8a8a92;
-  --color-accent: #f59e0b; /* amber — headlight / sunset */
-  --color-accent-soft: #f59e0b22;
+/* Design tokens. Dark: river-green night, low-sun orange. Light: lichen paper, burnt orange.
+   Values live in plain custom properties so the theme can swap them; @theme exposes them
+   to Tailwind utilities (bg-bg, text-ink, border-line, text-sun, ...). */
+:root {
+  --bg: #141a17;
+  --surface: #1c2420;
+  --raise: #24302a;
+  --line: #2f3b35;
+  --ink: #ece6d8;
+  --muted: #a5ab9f;
+  --faint: #6f786f;
+  --sun: #e8833a;
+  --sun-soft: rgba(232, 131, 58, 0.16);
+  --river: #6fa7a0;
+  --on-sun: #141a17;
+  color-scheme: dark;
+}
 
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+:root[data-theme="light"] {
+  --bg: #e9ede6;
+  --surface: #f4f6f1;
+  --raise: #dde3da;
+  --line: #c7cfc4;
+  --ink: #18201c;
+  --muted: #4c574f;
+  --faint: #7a847b;
+  --sun: #b4521a;
+  --sun-soft: rgba(180, 82, 26, 0.12);
+  --river: #2e6e66;
+  --on-sun: #f4f6f1;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raise: var(--raise);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-river: var(--river);
+  --color-on-sun: var(--on-sun);
+
+  --font-display: "Big Shoulders Display", "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, ui-serif, serif;
 }
 
 html {
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 17px;
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -27,35 +65,61 @@ body {
   min-height: 100dvh;
 }
 
-a {
-  text-decoration: none;
+@layer base {
+  a {
+    text-decoration: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--sun);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--sun);
+  color: var(--on-sun);
+}
+
+/* Small label style: condensed display face, slightly tracked. */
+.label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
 }
 
 /* Markdown body styling for trip/tip detail pages */
 .prose {
+  font-size: 1.12rem;
   line-height: 1.75;
-  color: var(--color-text);
+  color: var(--ink);
+  max-width: 64ch;
 }
 .prose h2 {
-  font-family: var(--font-mono);
-  font-size: 1.4rem;
-  margin: 2rem 0 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.05;
+  margin: 2.5rem 0 0.75rem;
 }
 .prose h3 {
-  font-family: var(--font-mono);
-  font-size: 1.15rem;
-  margin: 1.5rem 0 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.45rem;
+  margin: 1.75rem 0 0.5rem;
 }
 .prose h2,
 .prose h3 {
   scroll-margin-top: 6rem;
 }
 .prose p {
-  margin: 0 0 1rem;
+  margin: 0 0 1.1rem;
 }
 .prose ul,
 .prose ol {
-  margin: 0 0 1rem 1.25rem;
+  margin: 0 0 1.1rem 1.25rem;
 }
 .prose ul {
   list-style-type: disc;
@@ -64,27 +128,50 @@ a {
   list-style-type: decimal;
 }
 .prose li {
-  margin: 0.25rem 0;
+  margin: 0.3rem 0;
+}
+.prose li::marker {
+  color: var(--sun);
 }
 .prose a {
-  color: var(--color-accent);
+  color: var(--ink);
   text-decoration: underline;
+  text-decoration-color: var(--sun);
+  text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
+.prose a:hover {
+  color: var(--sun);
+}
 .prose img {
-  border-radius: 0.5rem;
+  border-radius: 4px;
   margin: 1rem 0;
 }
 .prose code {
-  font-family: var(--font-mono);
-  background: var(--color-card);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--surface);
   padding: 0.1rem 0.35rem;
   border-radius: 0.25rem;
-  font-size: 0.9em;
+  font-size: 0.85em;
 }
 .prose blockquote {
-  border-left: 3px solid var(--color-accent);
+  border-left: 3px solid var(--sun);
   margin: 1rem 0;
   padding-left: 1rem;
-  color: var(--color-muted);
+  color: var(--muted);
+  font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

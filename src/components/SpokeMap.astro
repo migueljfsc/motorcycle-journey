@@ -1,0 +1,713 @@
+---
+// Map of every ride out of Porto over Natural Earth land (Iberia + western France),
+// with each trip's real route (outbound solid, return dashed) from routes.json; trips
+// without a route draw a curved spoke. Opens framed on every ride within FIT_KM.
+//
+// Full mode (home): drag to pan, ⌘/Ctrl + scroll or pinch to zoom (two fingers on touch,
+// so one finger still scrolls the page), +/−/reset buttons. Routes draw in once on load;
+// hovering or focusing a place lights its route and shows a photo card. Rides beyond the
+// view get an edge arrow that flies to them; the reset button returns to Porto.
+// Compact mode (trip page): static, framed on one trip.
+import { origin, tripPlaces, rivers, crowFliesKm, type LatLng } from '../data/places';
+import routesData from '../data/routes.json';
+import basemap from '../data/basemap.json';
+import { t, defaultLocale, type Locale } from '../data/site';
+
+export interface MapTrip {
+  slug: string;
+  title: string;
+  date: string;
+  href: string;
+  cover?: string;
+  coverPos?: string;
+  order: number;
+}
+
+interface Props {
+  trips: MapTrip[];
+  highlight?: string;
+  compact?: boolean;
+}
+const { trips, highlight, compact = false } = Astro.props;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const c = t(locale);
+
+type Seg = [number, number][];
+const routes = routesData as Record<string, { legs: { kind: 'out' | 'back' | 'round'; segments: Seg[] }[] }>;
+const { land, borders } = basemap as { land: Seg[]; borders: Seg[] };
+
+// World: equirectangular around 41.3°N over the basemap frame; 1 unit ≈ 111 m.
+const LAT_TOP = 47.2;
+const LNG_LEFT = -10.6;
+const K = 1000;
+const KX = Math.cos((41.3 * Math.PI) / 180) * K;
+const WORLD_W = Math.round((3.6 - LNG_LEFT) * KX);
+const WORLD_H = Math.round((LAT_TOP - 35.8) * K);
+const px = (p: LatLng) => ({ x: (p.lng - LNG_LEFT) * KX, y: (LAT_TOP - p.lat) * K });
+const f = (n: number) => n.toFixed(1);
+const line = (pts: LatLng[]) =>
+  pts.map((p, i) => `${i ? 'L' : 'M'}${f(px(p).x)} ${f(px(p).y)}`).join(' ');
+const segLine = (seg: Seg) => line(seg.map(([lat, lng]) => ({ lat, lng })));
+
+const landPath = land.map((r) => segLine(r) + 'Z').join(' ');
+const borderPath = borders.map(segLine).join(' ');
+const o = px(origin);
+
+// Rides within FIT_KM frame the opening view; anything further is "far".
+const FIT_KM = 150;
+const mapped = trips
+  .filter((tr) => tripPlaces[tr.slug])
+  .map((tr) => {
+    const place = tripPlaces[tr.slug];
+    const km = Math.round(crowFliesKm(origin, place));
+    return { ...tr, place, km, far: km > FIT_KM, d: px(place), legs: routes[tr.slug]?.legs ?? [] };
+  });
+
+const spokes = mapped.map((s) => {
+  const dx = s.d.x - o.x;
+  const dy = s.d.y - o.y;
+  const bend = (s.far ? 0.04 : 0.12) * (s.order % 2 ? 1 : -1);
+  const cx = o.x + dx / 2 - dy * bend;
+  const cy = o.y + dy / 2 + dx * bend;
+  return {
+    ...s,
+    paths: s.legs.length
+      ? s.legs.map((l) => ({ kind: l.kind, d: l.segments.map(segLine).join(' ') }))
+      : [{ kind: 'spoke' as const, d: `M${f(o.x)} ${f(o.y)} Q${f(cx)} ${f(cy)} ${f(s.d.x)} ${f(s.d.y)}` }],
+  };
+});
+
+// Opening view: compact frames the highlighted trip; full frames every nearby ride.
+const framePts: { x: number; y: number }[] = [o];
+const frameTrips = compact ? spokes.filter((s) => s.slug === highlight) : spokes.filter((s) => !s.far);
+for (const s of frameTrips) {
+  framePts.push(s.d);
+  for (const l of s.legs) for (const seg of l.segments) for (const [lat, lng] of seg) framePts.push(px({ lat, lng }));
+}
+// Room for the "Porto" label, which sits to the left of the origin.
+{
+  const spanX = Math.max(...framePts.map((p) => p.x)) - Math.min(...framePts.map((p) => p.x));
+  const spanY = Math.max(...framePts.map((p) => p.y)) - Math.min(...framePts.map((p) => p.y));
+  framePts.push({ x: o.x - Math.max(spanX, spanY) * 0.22, y: o.y });
+  // ...and for each framed destination's label, on whichever side it sits.
+  for (const t of frameTrips) {
+    const dir = (t.place.side ?? 'right') === 'right' ? 1 : -1;
+    framePts.push({ x: t.d.x + dir * Math.max(spanX, spanY) * 0.25, y: t.d.y });
+  }
+}
+const xs = framePts.map((p) => p.x);
+const ys = framePts.map((p) => p.y);
+let vx = Math.min(...xs), vy = Math.min(...ys);
+let vw = Math.max(...xs) - vx, vh = Math.max(...ys) - vy;
+const pad = Math.max(vw, vh) * (compact ? 0.14 : 0.08) + 25;
+vx -= pad; vy -= pad; vw += pad * 2; vh += pad * 2;
+// Keep the frame from getting too thin in either direction.
+const minAspect = compact ? 0.65 : 0.55;
+if (vw / vh < minAspect) { const nw = vh * minAspect; vx -= (nw - vw) / 2; vw = nw; }
+if (vh / vw < 0.6) { const nh = vw * 0.6; vy -= (nh - vh) / 2; vh = nh; }
+const view = { x: Math.round(vx), y: Math.round(vy), w: Math.round(vw), h: Math.round(vh) };
+// Units per screen pixel, estimated until the script measures the real width.
+// Compact maps fit in COMPACT_H x COMPACT_MAX_W px whatever the route's shape.
+const COMPACT_H = 240;
+const COMPACT_MAX_W = 220;
+const compactW = Math.round(Math.min((COMPACT_H * view.w) / view.h, COMPACT_MAX_W));
+const s0 = view.w / (compact ? compactW : 540);
+
+const sea = px({ lat: 41.36, lng: -8.86 });
+const farTrips = spokes.filter((s) => s.far);
+---
+
+<figure
+  class:list={['spoke-map', { compact }]}
+  data-spoke-map
+  data-hint-desktop={c.ui.mapHintDesktop}
+  data-hint-touch={c.ui.mapHintTouch}
+  data-view={JSON.stringify(view)} data-world={JSON.stringify({ w: WORLD_W, h: WORLD_H })}>
+  <div class="map-frame relative mx-auto overflow-hidden" style={`aspect-ratio: ${view.w} / ${view.h}; ${compact ? `width: ${compactW}px; max-width: 100%` : `width: min(100%, calc(78vh * ${(view.w / view.h).toFixed(3)}))`}`} data-frame>
+    <svg
+      viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
+      class="block h-full w-full"
+      style={`--s: ${s0.toFixed(3)}`}
+      role="img"
+      aria-labelledby={compact ? undefined : 'map-title'}
+      aria-hidden={compact ? 'true' : undefined}
+      data-svg
+    >
+      {!compact && <title id="map-title">{c.home.mapCaption}</title>}
+      <path d={landPath} class="land" />
+      <path d={borderPath} class="border" />
+      {rivers.map((r) => <path d={line(r.path)} class="river" />)}
+      {!compact && (
+        <g class="ui" transform={`translate(${f(sea.x)} ${f(sea.y)})`}>
+          <text class="sea-label" text-anchor="end">{c.ui.sea}</text>
+        </g>
+      )}
+
+      {spokes.map((s) =>
+        s.paths.map((p) => (
+          <path
+            d={p.d}
+            pathLength={p.kind === 'back' ? undefined : 1}
+            class:list={['route', p.kind, { hot: s.slug === highlight }]}
+            data-route={s.slug}
+            style={`--i: ${s.order}`}
+          />
+        )),
+      )}
+
+      {spokes.map((s) => {
+        const right = (s.place.side ?? 'right') === 'right';
+        const showLabel = !compact || s.slug === highlight;
+        const marker = (
+          <g class:list={['place', { hot: s.slug === highlight }]} data-place={s.slug} style={`--i: ${s.order}`} transform={`translate(${f(s.d.x)} ${f(s.d.y)})`}>
+            <g class="ui">
+              <circle r="14" class="hit" />
+              <circle r="4.5" class="dot" />
+              {showLabel && (
+                <text x={right ? 10 : -10} y={4 + (s.place.dy ?? 0)} text-anchor={right ? 'start' : 'end'} class="place-label">
+                  {s.place.label}
+                </text>
+              )}
+            </g>
+          </g>
+        );
+        return compact ? marker : (
+          <a href={s.href} aria-label={`${s.title}, ${s.date}`} data-place-link={s.slug} data-x={f(s.d.x)} data-y={f(s.d.y)}>{marker}</a>
+        );
+      })}
+
+      <g class="origin" transform={`translate(${f(o.x)} ${f(o.y)})`}>
+        <g class="ui">
+          <circle r="13" class="origin-ring" />
+          <circle r="6.5" class="origin-dot" />
+          <text x="-16" y="8" text-anchor="end" class="origin-label">{origin.label}</text>
+        </g>
+      </g>
+    </svg>
+
+    {!compact && (
+      <>
+        {farTrips.map((s) => (
+          <button
+            type="button"
+            class="edge-marker label"
+            data-edge={s.slug}
+            data-x={f(s.d.x)}
+            data-y={f(s.d.y)}
+            hidden
+          >
+            <svg viewBox="-8 -8 16 16" class="edge-arrow" aria-hidden="true"><path d="M-6 0 H6 M1 -5 L6 0 L1 5" /></svg>
+            <span>{s.place.label}<br /><b>{s.km} km</b></span>
+          </button>
+        ))}
+
+        <div class="map-controls" data-controls>
+          <button type="button" data-zoom-in aria-label={c.ui.mapZoomIn}>+</button>
+          <button type="button" data-zoom-out aria-label={c.ui.mapZoomOut}>−</button>
+          <button type="button" data-reset aria-label={c.ui.mapReset} title={c.ui.mapReset}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" /></svg>
+          </button>
+        </div>
+
+        <div class="scale-bar label" data-scale><span data-scale-line></span><span data-scale-text></span></div>
+        <p class="map-hint label" data-hint hidden></p>
+
+        {spokes.map((s) => (
+          <a
+            href={s.href}
+            class="map-card"
+            data-card={s.slug}
+            data-x={f(s.d.x)}
+            data-y={f(s.d.y)}
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            {s.cover && <img src={s.cover} alt="" loading="lazy" style={`object-position: ${s.coverPos ?? 'center'}`} />}
+            <span class="card-body">
+              <span class="card-date label">{s.date}</span>
+              <span class="card-title">{s.title}</span>
+            </span>
+          </a>
+        ))}
+      </>
+    )}
+  </div>
+</figure>
+
+<style>
+  .map-frame {
+    border-radius: 6px;
+    background: var(--bg);
+    touch-action: pan-y;
+  }
+  .spoke-map:not(.compact) .map-frame { cursor: grab; }
+  .spoke-map.dragging .map-frame { cursor: grabbing; }
+  .spoke-map.dragging .map-frame * { pointer-events: none; }
+
+  .ui { transform: scale(var(--s)); }
+
+  .land { fill: var(--surface); stroke: var(--river); stroke-width: calc(1.2px * var(--s)); stroke-opacity: 0.6; }
+  .border { fill: none; stroke: var(--faint); stroke-width: calc(1px * var(--s)); stroke-dasharray: calc(4px * var(--s)) calc(4px * var(--s)); opacity: 0.6; }
+  .river { fill: none; stroke: var(--river); stroke-width: calc(1.6px * var(--s)); stroke-linecap: round; stroke-linejoin: round; opacity: 0.55; }
+  .sea-label { font-family: var(--font-serif); font-style: italic; font-size: 16px; fill: var(--river); opacity: 0.85; }
+
+  .route {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: calc(1.8px * var(--s));
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.45;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 0.9s cubic-bezier(0.45, 0, 0.2, 1) forwards;
+    animation-delay: calc(0.3s + var(--i) * 0.16s);
+    transition: stroke 0.2s, opacity 0.2s;
+  }
+  .route.spoke { stroke-width: calc(1.5px * var(--s)); }
+  .route.back {
+    stroke-dasharray: calc(5px * var(--s)) calc(6px * var(--s));
+    stroke-dashoffset: 0;
+    opacity: 0;
+    animation: fade-route 0.6s ease-out forwards;
+    animation-delay: calc(0.9s + var(--i) * 0.16s);
+  }
+  .spoke-map:not(.compact) .route { cursor: pointer; }
+
+  .place { opacity: 0; animation: appear 0.35s ease-out forwards; animation-delay: calc(1.05s + var(--i) * 0.16s); cursor: pointer; }
+  .hit { fill: transparent; }
+  .dot { fill: var(--bg); stroke: var(--ink); stroke-width: 2; transition: fill 0.2s, stroke 0.2s; }
+  .place-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    fill: var(--muted);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+    transition: fill 0.2s;
+  }
+
+  .origin-ring { fill: var(--sun-soft); stroke: var(--sun); stroke-width: 1.5; }
+  .origin-dot { fill: var(--sun); }
+  .origin-label {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 21px;
+    fill: var(--ink);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 5px;
+    stroke-linejoin: round;
+  }
+
+  /* Active place: light its route, dim the others */
+  .spoke-map.has-active .route { opacity: 0.12; }
+  .spoke-map.has-active .place { opacity: 0.45; }
+  .route.on, .route.hot { stroke: var(--sun); stroke-width: calc(2.8px * var(--s)); opacity: 1 !important; }
+  .place.on, .place.hot { opacity: 1 !important; }
+  .place.on .dot, .place.hot .dot { fill: var(--sun); stroke: var(--sun); }
+  .place.on .place-label, .place.hot .place-label { fill: var(--ink); }
+
+  /* Overlays (screen space) */
+  .map-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .map-controls button {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .map-controls button:hover { color: var(--sun); border-color: var(--sun); }
+  .map-controls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+  .scale-bar {
+    position: absolute;
+    left: 10px;
+    bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--faint);
+    pointer-events: none;
+  }
+  .scale-bar [data-scale-line] { display: block; height: 6px; border: 1.5px solid var(--faint); border-top: 0; }
+
+  .map-hint {
+    position: absolute;
+    inset: auto 0 40% 0;
+    margin: 0 auto;
+    width: fit-content;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 85%, transparent);
+    color: var(--bg);
+    pointer-events: none;
+  }
+
+  .edge-marker {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px 4px 4px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.05;
+    text-align: left;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .edge-marker[hidden] { display: none; }
+  .edge-marker b { color: var(--sun); font-weight: 700; }
+  .edge-marker:hover { color: var(--ink); border-color: var(--sun); }
+  .edge-arrow { width: 18px; height: 18px; fill: none; stroke: var(--sun); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  .map-card {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    width: min(240px, 48%);
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.55);
+    color: var(--ink);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scale(0.96);
+    transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .map-card.to-right { margin-left: 22px; }
+  .map-card.to-left { margin-left: -22px; translate: -100% 0; }
+  .map-card.on { opacity: 1; transform: translateY(-50%) scale(1); pointer-events: auto; }
+  .map-card img { aspect-ratio: 3 / 2; width: 100%; object-fit: cover; }
+  .card-body { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.7rem 0.85rem 0.85rem; }
+  .card-date { color: var(--sun); font-size: 0.85rem; }
+  .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; line-height: 1.05; }
+
+  /* Compact: static, no entrance */
+  .compact .route { animation: none; stroke-dashoffset: 0; opacity: 0.2; }
+  .compact .route.back { opacity: 0.2; }
+  .compact .place { animation: none; opacity: 0.5; cursor: default; }
+
+  @media (max-width: 640px) {
+    .map-card { display: none; }
+  }
+
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes appear { to { opacity: 1; } }
+  @keyframes fade-route { to { opacity: 0.45; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .route { stroke-dashoffset: 0; }
+    .route.back { opacity: 0.45; }
+    .place { opacity: 1; }
+  }
+</style>
+
+<script>
+  type View = { x: number; y: number; w: number; h: number };
+
+  document.querySelectorAll<HTMLElement>('[data-spoke-map]').forEach((map) => {
+    const svg = map.querySelector<SVGSVGElement>('[data-svg]')!;
+    const frame = map.querySelector<HTMLElement>('[data-frame]')!;
+    const home: View = JSON.parse(map.dataset.view!);
+    const world = JSON.parse(map.dataset.world!) as { w: number; h: number };
+    const compact = map.classList.contains('compact');
+    let view: View = { ...home };
+
+    // Keep strokes, markers and labels a constant size on screen at any zoom.
+    const setScale = () => svg.style.setProperty('--s', String(view.w / (frame.clientWidth || 1)));
+
+    if (compact) {
+      setScale();
+      new ResizeObserver(setScale).observe(frame);
+      return;
+    }
+
+    const toScreen = (x: number, y: number) => ({
+      x: ((x - view.x) / view.w) * frame.clientWidth,
+      y: ((y - view.y) / view.h) * frame.clientHeight,
+    });
+
+    // ---- Overlays: far-ride edge arrows, scale bar, open card ----
+    const edges = Array.from(map.querySelectorAll<HTMLButtonElement>('[data-edge]'));
+    const scaleLine = map.querySelector<HTMLElement>('[data-scale-line]')!;
+    const scaleText = map.querySelector<HTMLElement>('[data-scale-text]')!;
+    const KM_PER_UNIT = 0.11132;
+
+    const placeEdges = () => {
+      const W = frame.clientWidth;
+      const H = frame.clientHeight;
+      const m = 34;
+      for (const el of edges) {
+        const p = toScreen(Number(el.dataset.x), Number(el.dataset.y));
+        const inside = p.x >= 0 && p.x <= W && p.y >= 0 && p.y <= H;
+        el.hidden = inside;
+        if (inside) continue;
+        // Ray from the view centre towards the ride, stopped just inside the frame.
+        const cx = W / 2, cy = H / 2;
+        const dx = p.x - cx, dy = p.y - cy;
+        const t = Math.min(
+          dx ? (dx > 0 ? W - m - cx : m - cx) / dx : Infinity,
+          dy ? (dy > 0 ? H - m - cy : m - cy) / dy : Infinity,
+        );
+        const ex = cx + dx * t, ey = cy + dy * t;
+        el.style.left = `${Math.min(Math.max(ex, 60), W - 60)}px`;
+        el.style.top = `${Math.min(Math.max(ey, 20), H - 20)}px`;
+        el.querySelector<SVGElement>('.edge-arrow')!.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+      }
+    };
+
+    const placeScale = () => {
+      const kmPerPx = (view.w / frame.clientWidth) * KM_PER_UNIT;
+      const target = kmPerPx * 90;
+      const pow = 10 ** Math.floor(Math.log10(target));
+      const nice = [1, 2, 5, 10].map((n) => n * pow).filter((n) => n <= target).pop() ?? pow;
+      scaleLine.style.width = `${nice / kmPerPx}px`;
+      scaleText.textContent = `${nice} km`;
+    };
+
+    let active: string | null = null;
+    const cards = new Map<string, HTMLElement>();
+    map.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => cards.set(el.dataset.card!, el));
+    const placeCard = () => {
+      const card = active ? cards.get(active) : null;
+      if (!card) return;
+      const p = toScreen(Number(card.dataset.x), Number(card.dataset.y));
+      const left = p.x > frame.clientWidth * 0.55;
+      card.classList.toggle('to-left', left);
+      card.classList.toggle('to-right', !left);
+      card.style.left = `${p.x}px`;
+      card.style.top = `${Math.min(Math.max(p.y, frame.clientHeight * 0.18), frame.clientHeight * 0.82)}px`;
+    };
+
+    // ---- View ----
+    const minW = home.w / 6;
+    const maxW = Math.min(world.w, (world.h * home.w) / home.h);
+    const clamp = (v: View): View => {
+      const w = Math.min(Math.max(v.w, minW), maxW);
+      const h = (w * home.h) / home.w;
+      return {
+        w,
+        h,
+        x: Math.min(Math.max(v.x, 0), world.w - w),
+        y: Math.min(Math.max(v.y, 0), world.h - h),
+      };
+    };
+    const apply = (v: View) => {
+      view = clamp(v);
+      svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
+      setScale();
+      placeEdges();
+      placeScale();
+      placeCard();
+    };
+
+    let anim = 0;
+    const animateTo = (target: View) => {
+      cancelAnimationFrame(anim);
+      const from = { ...view };
+      const to = clamp(target);
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const start = performance.now();
+      const dur = reduce ? 0 : 450;
+      const step = (now: number) => {
+        const k = dur ? Math.min((now - start) / dur, 1) : 1;
+        const e = 1 - (1 - k) ** 3;
+        apply({
+          x: from.x + (to.x - from.x) * e,
+          y: from.y + (to.y - from.y) * e,
+          w: from.w + (to.w - from.w) * e,
+          h: from.h + (to.h - from.h) * e,
+        });
+        if (k < 1) anim = requestAnimationFrame(step);
+      };
+      anim = requestAnimationFrame(step);
+    };
+
+    // Zoom by `factor` keeping the world point under (sx, sy) fixed.
+    const zoomAt = (factor: number, sx: number, sy: number, base = view) => {
+      const w = Math.min(Math.max(base.w * factor, minW), maxW);
+      const h = (w * home.h) / home.w;
+      const fx = sx / frame.clientWidth;
+      const fy = sy / frame.clientHeight;
+      return { x: base.x + (base.w - w) * fx, y: base.y + (base.h - h) * fy, w, h };
+    };
+
+    // ---- Buttons ----
+    map.querySelector('[data-zoom-in]')!.addEventListener('click', () =>
+      animateTo(zoomAt(0.6, frame.clientWidth / 2, frame.clientHeight / 2)));
+    map.querySelector('[data-zoom-out]')!.addEventListener('click', () =>
+      animateTo(zoomAt(1 / 0.6, frame.clientWidth / 2, frame.clientHeight / 2)));
+    map.querySelector('[data-reset]')!.addEventListener('click', () => animateTo(home));
+
+    // Edge arrow: fly to the far ride, zoomed out enough to see the road coming in.
+    for (const el of edges) {
+      el.addEventListener('click', () => {
+        const x = Number(el.dataset.x), y = Number(el.dataset.y);
+        const w = Math.max(view.w, home.w * 2.5);
+        const h = (w * home.h) / home.w;
+        animateTo({ x: x - w / 2, y: y - h / 2, w, h });
+      });
+    }
+
+    // ---- Hint (shown when a gesture is ignored) ----
+    const hint = map.querySelector<HTMLElement>('[data-hint]')!;
+    let hintTimer = 0;
+    const showHint = (text: string) => {
+      hint.textContent = text;
+      hint.hidden = false;
+      clearTimeout(hintTimer);
+      hintTimer = window.setTimeout(() => (hint.hidden = true), 1400);
+    };
+    const hintDesktop = map.dataset.hintDesktop ?? '';
+    const hintTouch = map.dataset.hintTouch ?? '';
+
+    // ---- Wheel: zoom only with ⌘/Ctrl (trackpad pinch sends ctrlKey), so the page still scrolls ----
+    frame.addEventListener('wheel', (e) => {
+      if (!(e.ctrlKey || e.metaKey)) {
+        showHint(hintDesktop);
+        return;
+      }
+      e.preventDefault();
+      const r = frame.getBoundingClientRect();
+      apply(zoomAt(Math.exp(e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top));
+    }, { passive: false });
+
+    // ---- Drag / pinch ----
+    const pointers = new Map<number, { x: number; y: number }>();
+    let startView = view;
+    let startPts: { x: number; y: number }[] = [];
+    let moved = false;
+
+    const centroid = (pts: { x: number; y: number }[]) => ({
+      x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
+      y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
+    });
+    const spread = (pts: { x: number; y: number }[]) =>
+      pts.length < 2 ? 1 : Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+
+    const begin = () => {
+      startView = { ...view };
+      startPts = [...pointers.values()];
+    };
+
+    frame.addEventListener('pointerdown', (e) => {
+      if ((e.target as Element).closest('button, .map-card')) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      const r = frame.getBoundingClientRect();
+      pointers.set(e.pointerId, { x: e.clientX - r.left, y: e.clientY - r.top });
+      moved = false;
+      cancelAnimationFrame(anim);
+      begin();
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      const r = frame.getBoundingClientRect();
+      pointers.set(e.pointerId, { x: e.clientX - r.left, y: e.clientY - r.top });
+      const pts = [...pointers.values()];
+      // One finger on touch is left to the page (scroll); two fingers move the map.
+      if (e.pointerType === 'touch' && pts.length < 2) {
+        if (Math.abs(pts[0].x - startPts[0].x) > 12) showHint(hintTouch);
+        return;
+      }
+      if (pts.length !== startPts.length) begin();
+      const c0 = centroid(startPts);
+      const c1 = centroid(pts);
+      if (!moved && Math.hypot(c1.x - c0.x, c1.y - c0.y) < 4 && pts.length < 2) return;
+      if (!moved) {
+        moved = true;
+        map.classList.add('dragging');
+      }
+      const zoomed = zoomAt(spread(startPts) / spread(pts), c0.x, c0.y, startView);
+      const unit = zoomed.w / frame.clientWidth;
+      apply({ ...zoomed, x: zoomed.x - (c1.x - c0.x) * unit, y: zoomed.y - (c1.y - c0.y) * unit });
+    });
+
+    const end = (e: PointerEvent) => {
+      if (!pointers.delete(e.pointerId)) return;
+      if (pointers.size) begin();
+      else map.classList.remove('dragging');
+    };
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    // A drag must not also follow the link it started on.
+    frame.addEventListener('click', (e) => {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    }, true);
+
+    // ---- Hover / focus: light a ride, show its card ----
+    const routesOf = (slug: string) => map.querySelectorAll(`[data-route="${slug}"]`);
+    let hideTimer = 0;
+    const set = (slug: string | null) => {
+      window.clearTimeout(hideTimer);
+      if (slug === active || map.classList.contains('dragging')) return;
+      if (active) {
+        routesOf(active).forEach((el) => el.classList.remove('on'));
+        map.querySelector(`[data-place="${active}"]`)?.classList.remove('on');
+        cards.get(active)?.classList.remove('on');
+      }
+      active = slug;
+      map.classList.toggle('has-active', !!slug);
+      if (slug) {
+        routesOf(slug).forEach((el) => el.classList.add('on'));
+        map.querySelector(`[data-place="${slug}"]`)?.classList.add('on');
+        placeCard();
+        cards.get(slug)?.classList.add('on');
+      }
+    };
+    const clearSoon = () => {
+      hideTimer = window.setTimeout(() => set(null), 160);
+    };
+    map.querySelectorAll<HTMLElement>('[data-place-link]').forEach((a) => {
+      const slug = a.dataset.placeLink!;
+      a.addEventListener('pointerenter', () => set(slug));
+      a.addEventListener('pointerleave', clearSoon);
+      a.addEventListener('focus', () => set(slug));
+      a.addEventListener('blur', clearSoon);
+    });
+    map.querySelectorAll<SVGElement>('[data-route]').forEach((el) => {
+      const slug = el.dataset.route!;
+      el.addEventListener('pointerenter', () => set(slug));
+      el.addEventListener('pointerleave', clearSoon);
+    });
+    cards.forEach((card) => {
+      card.addEventListener('pointerenter', () => window.clearTimeout(hideTimer));
+      card.addEventListener('pointerleave', clearSoon);
+    });
+
+    new ResizeObserver(() => apply(view)).observe(frame);
+    apply(view);
+  });
+</script>

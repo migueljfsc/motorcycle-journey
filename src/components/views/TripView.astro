@@ -3,10 +3,13 @@ import type { CollectionEntry } from 'astro:content';
 import { render, getEntry } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Carousel from '../Carousel.astro';
-import { fmtDate, fmtKm } from '../../lib/format';
-import { localeUrl } from '../../lib/url';
+import SpokeMap from '../SpokeMap.astro';
+import { fmtDate, fmtKm, fmtDuration } from '../../lib/format';
+import { rideTotals } from '../../data/rides';
+import { localeUrl, media } from '../../lib/url';
 import { t, type Locale } from '../../data/site';
-import { tripPhotos } from '../../data/media';
+import { tripPhotos, photoPosition } from '../../data/media';
+import { localeTrips, mapTrips, tripSlug, tripCrowKm } from '../../lib/trips';
 
 interface Props {
   locale: Locale;
@@ -17,7 +20,7 @@ const c = t(locale);
 const { data } = trip;
 const { Content } = await render(trip);
 
-const slug = trip.id.replace(/^[a-z]{2}\//, '');
+const slug = tripSlug(trip);
 const photos = tripPhotos[slug]?.length
   ? tripPhotos[slug]
   : data.photos.length
@@ -25,6 +28,9 @@ const photos = tripPhotos[slug]?.length
     : data.cover
       ? [data.cover]
       : [];
+const hero = photos[0];
+const crow = tripCrowKm(trip);
+const allTrips = await localeTrips(locale);
 
 // Bike ridden: owned/past have a detail page; wishlist links out.
 const ridden = data.bike ? await getEntry(data.bike) : undefined;
@@ -33,50 +39,111 @@ const bikeHref = ridden
     ? ridden.data.link
     : localeUrl(locale, `/bikes/${ridden.id}`)
   : undefined;
+
+const ride = rideTotals(slug);
+const r = c.ui.ride;
+const rideStats = ride
+  ? [
+      { k: r.distance, v: fmtKm(ride.km, locale) },
+      { k: r.moving, v: fmtDuration(ride.movingSec) },
+      { k: r.avg, v: `${ride.avgKmh} km/h` },
+      { k: r.max, v: `${ride.maxKmh} km/h` },
+      { k: r.elapsed, v: fmtDuration(ride.elapsedSec) },
+      ...(ride.gainM != null ? [{ k: r.climb, v: `${ride.gainM.toLocaleString(locale === 'pt' ? 'pt-PT' : 'en-GB')} m` }] : []),
+    ]
+  : [];
 ---
 
-<Layout title={data.title} description={data.distanceKm != null ? `${data.region} · ${fmtKm(data.distanceKm, locale)}` : data.region}>
-  <a href={localeUrl(locale, '/trips')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
-    {c.ui.backToTrips}
-  </a>
-
-  <article class="mt-4">
-    <h1 class="font-mono text-3xl font-semibold tracking-tight">{data.title}</h1>
-    <div class="mt-2 font-mono text-sm text-[var(--color-muted)]">
-      {fmtDate(data.date, locale)} · {data.region}
-    </div>
-    <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
-      {data.start} → {data.end}{data.distanceKm != null && ` · ${fmtKm(data.distanceKm, locale)}`}
-    </div>
-
+<Layout title={data.title} description={ride ? `${data.region} · ${fmtKm(ride.km, locale)}` : data.region} wide>
+  <header slot="hero" class="trip-hero relative isolate overflow-hidden">
     {
-      ridden && (
-        <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
+      hero && (
+        <img
+          src={media(hero)}
+          alt=""
+          class="absolute inset-0 -z-10 h-full w-full object-cover"
+          style={`object-position: ${photoPosition[hero] ?? 'center 60%'}`}
+        />
+      )
+    }
+    <div class="mx-auto flex h-full max-w-6xl flex-col justify-end px-5 pb-10 sm:pb-14">
+      <a href={localeUrl(locale, '/trips')} class="label mb-auto pt-6 text-[#f3efe6]/80 transition-colors hover:text-[#f3efe6]">
+        {c.ui.backToTrips}
+      </a>
+      <p class="label text-[#ffb27a]">{fmtDate(data.date, locale)} <span class="opacity-60">/</span> {data.region}</p>
+      <h1 class="mt-2 max-w-[18ch] font-display text-[clamp(2.6rem,7vw,5.6rem)] leading-[0.9] font-black text-[#f3efe6]">
+        {data.title}
+      </h1>
+    </div>
+  </header>
+
+  <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-14">
+    <aside class="ride-card grid gap-5 self-start rounded border border-line bg-surface p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-6 lg:sticky lg:top-24 lg:order-2 lg:w-[520px]">
+      <div class="min-w-0">
+      <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-display text-xl font-bold">
+        <span>{data.start}</span>
+        <svg viewBox="0 0 40 8" class="h-2 w-9 shrink-0" aria-hidden="true">
+          <circle cx="3" cy="4" r="2.5" fill="var(--sun)" />
+          <path d="M8 4h24" stroke="var(--sun)" stroke-width="1.6" stroke-dasharray="3 3" />
+          <path d="M33 1l5 3-5 3z" fill="var(--sun)" />
+        </svg>
+        <span>{data.end}</span>
+      </div>
+      {ride?.oneWay && <p class="label mt-0.5 text-faint">{r.oneWay}</p>}
+      {rideStats.length > 0 ? (
+        <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5">
+          {rideStats.map((st) => (
+            <div>
+              <dt class="label text-sm text-faint">{st.k}</dt>
+              <dd class="font-display text-xl font-extrabold leading-tight">{st.v}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : crow != null && (
+        <p class="label mt-2 text-muted">{crow} km <span class="text-faint">{c.ui.crowFlies}</span></p>
+      )}
+      {ridden && (
+        <p class="mt-4 border-t border-line pt-3 text-sm text-muted">
           {c.ui.ridden}{' '}
           {bikeHref ? (
             <a
               href={bikeHref}
-              {...(ridden.data.status === 'wishlist'
-                ? { target: '_blank', rel: 'noopener noreferrer' }
-                : {})}
-              class="text-[var(--color-accent)] hover:underline"
+              {...(ridden.data.status === 'wishlist' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              class="font-semibold text-ink underline decoration-sun decoration-2 underline-offset-4 hover:text-sun"
             >
               {ridden.data.make} {ridden.data.model}
-              {ridden.data.status === 'wishlist' && ' ↗'}
             </a>
           ) : (
-            <span>
-              {ridden.data.make} {ridden.data.model}
-            </span>
+            <span>{ridden.data.make} {ridden.data.model}</span>
           )}
-        </div>
-      )
-    }
+        </p>
+      )}
+      </div>
+      <div class="self-center justify-self-center">
+        <SpokeMap trips={mapTrips(allTrips, locale)} highlight={slug} compact />
+      </div>
+    </aside>
 
-    {photos.length > 0 && <div class="mt-6"><Carousel images={photos} alt={data.title} /></div>}
-
-    <div class="prose mt-8">
+    <article class="prose lg:order-1">
       <Content />
-    </div>
-  </article>
+    </article>
+  </div>
+
+  {photos.length > 1 && <div class="mt-16"><Carousel images={photos} alt={data.title} /></div>}
 </Layout>
+
+<style>
+  .trip-hero {
+    height: clamp(420px, 74vh, 760px);
+    background: var(--surface);
+  }
+  .trip-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(to bottom, rgba(10, 14, 12, 0.55), transparent 22%),
+      linear-gradient(to top, rgba(10, 14, 12, 0.85), rgba(10, 14, 12, 0.25) 45%, transparent 70%);
+  }
+</style>

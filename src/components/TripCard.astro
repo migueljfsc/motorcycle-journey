@@ -1,9 +1,10 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { localeUrl, media } from '../lib/url';
+import { localeUrl } from '../lib/url';
 import { fmtDate, fmtKm } from '../lib/format';
-import { defaultLocale, type Locale } from '../data/site';
-import { tripPhotos, coverPosition } from '../data/media';
+import { t, defaultLocale, type Locale } from '../data/site';
+import { tripSlug, tripCover, tripCrowKm } from '../lib/trips';
+import { rideTotals } from '../data/rides';
 
 interface Props {
   trip: CollectionEntry<'trips'>;
@@ -11,25 +12,39 @@ interface Props {
 const { trip } = Astro.props;
 const { data } = trip;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-const slug = trip.id.replace(/^[a-z]{2}\//, ''); // strip "<locale>/"
-const cover = tripPhotos[slug]?.[0] ?? data.cover; // card thumbnail = first photo
-const coverPos = coverPosition[slug] ?? 'center'; // keep the bike in the 2:1 crop
+const c = t(locale);
+const cover = tripCover(trip);
+const crow = tripCrowKm(trip);
+const ride = rideTotals(tripSlug(trip));
 ---
 
-<a
-  href={localeUrl(locale, `/trips/${slug}`)}
-  class="group block overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] transition-colors hover:border-[var(--color-accent)]"
->
-  {cover && <img src={media(cover)} alt="" class="aspect-[2/1] w-full object-cover" style={`object-position: ${coverPos}`} loading="lazy" />}
-  <div class="p-5">
-    <div class="font-mono text-xs text-[var(--color-muted)]">
-      {fmtDate(data.date, locale)} · {data.region}
-    </div>
-    <h3 class="mt-1 text-lg font-semibold group-hover:text-[var(--color-accent)]">
-      {data.title}
-    </h3>
-    <div class="mt-2 font-mono text-xs text-[var(--color-muted)]">
-      {data.start} → {data.end}{data.distanceKm != null && ` · ${fmtKm(data.distanceKm, locale)}`}
-    </div>
+<a href={localeUrl(locale, `/trips/${tripSlug(trip)}`)} class="group block min-w-0 text-ink">
+  <div class="overflow-hidden rounded bg-surface">
+    {
+      cover.src && (
+        <img
+          src={cover.src}
+          alt=""
+          class="aspect-[3/2] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+          style={`object-position: ${cover.pos}`}
+          loading="lazy"
+        />
+      )
+    }
+  </div>
+  <div class="label mt-3 text-sun">
+    {fmtDate(data.date, locale)} <span class="text-faint">/</span> {data.region.replace(/^Portugal\s*[—-]\s*/, '')}
+  </div>
+  <h3 class="mt-0.5 font-display text-2xl font-bold leading-tight transition-colors group-hover:text-sun sm:text-[1.7rem]">
+    {data.title}
+  </h3>
+  <div class="mt-1.5 flex min-w-0 items-center gap-2 text-sm text-muted">
+    <span>{data.start}</span>
+    <svg viewBox="0 0 40 8" class="h-2 w-8 shrink-0" aria-hidden="true">
+      <circle cx="3" cy="4" r="2.5" fill="var(--sun)" /><path d="M7 4h26" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3" /><path d="M33 1l5 3-5 3z" fill="currentColor" />
+    </svg>
+    <span class="min-w-0 truncate">{data.end}</span>
+    {ride ? <span class="shrink-0 text-faint">· {fmtKm(ride.km, locale)}</span>
+      : crow != null && <span class="shrink-0 text-faint" title={c.ui.crowFlies}>· {crow} km</span>}
   </div>
 </a>

@@ -32,13 +32,15 @@ export const site = {
 interface Dict {
   description: string;
   footerTagline: string;
-  footerBuilt: string;
+  footerAbout: string;
   footerCoffee: string;
   nav: NavLink[];
   home: {
     heading: string;
     intro: string;
     latestTripsCount: number;
+    stats: { rides: string; bike: string; bikes: string; farthest: string; ridden: string; saddle: string };
+    mapCaption: string;
     trips: { title: string; link: string };
     bikes: { title: string; link: string };
   };
@@ -60,14 +62,24 @@ interface Dict {
     tableDate: string;
     tableMileage: string;
     tableWork: string;
+    crowFlies: string;
+    themeToggle: string;
+    sea: string;
+    readTrip: string;
+    mapZoomIn: string;
+    mapZoomOut: string;
+    mapReset: string;
+    mapHintDesktop: string;
+    mapHintTouch: string;
+    ride: { distance: string; moving: string; elapsed: string; avg: string; max: string; climb: string; oneWay: string };
   };
 }
 
 const dict: Record<Locale, Dict> = {
   en: {
     description: 'Trips, tips, a bike catalog and service logs from the road.',
-    footerTagline: 'documenting the ride',
-    footerBuilt: 'built with Astro',
+    footerTagline: 'Documenting the ride',
+    footerAbout: 'About me',
     footerCoffee: 'Buy me a coffee',
     nav: [
       { label: 'Home', href: '/' },
@@ -76,12 +88,14 @@ const dict: Record<Locale, Dict> = {
       { label: 'Bikes', href: '/bikes' },
     ],
     home: {
-      heading: 'Documenting the ride.',
+      heading: 'Every ride starts in Porto.',
       intro:
         "Trips, hard-won tips, the bikes in the garage, and every wrench turned — logged so I don't have to remember it all.",
       latestTripsCount: 2,
-      trips: { title: 'Latest trips', link: 'all trips →' },
-      bikes: { title: 'The garage', link: 'bike catalog →' },
+      stats: { rides: 'rides', bike: 'bike', bikes: 'bikes', farthest: 'farthest out', ridden: 'ridden', saddle: 'in the saddle' },
+      mapCaption: 'Every ride as I actually rode it: the way out solid, the way back dashed. Pick a place to see the trip.',
+      trips: { title: 'Latest rides', link: 'All trips' },
+      bikes: { title: 'The garage', link: 'Bike catalog' },
     },
     pages: {
       trips: { title: 'Trips', description: 'Ride reports from the road.', heading: 'Trips' },
@@ -117,12 +131,22 @@ const dict: Record<Locale, Dict> = {
       tableDate: 'Date',
       tableMileage: 'Mileage',
       tableWork: 'Work',
+      crowFlies: 'as the crow flies',
+      themeToggle: 'Toggle light and dark theme',
+      sea: 'Atlantic',
+      readTrip: 'Read the trip',
+      mapZoomIn: 'Zoom in',
+      mapZoomOut: 'Zoom out',
+      mapReset: 'Back to Porto',
+      mapHintDesktop: 'Drag to explore, ⌘/Ctrl + scroll to zoom.',
+      mapHintTouch: 'Use two fingers to move the map.',
+      ride: { distance: 'Distance', moving: 'Moving', elapsed: 'Total time', avg: 'Avg speed', max: 'Top speed', climb: 'Climb', oneWay: 'one way only' },
     },
   },
   pt: {
     description: 'Viagens, dicas, um catálogo de motos e registos de manutenção da estrada.',
-    footerTagline: 'a documentar a viagem',
-    footerBuilt: 'feito com Astro',
+    footerTagline: 'A documentar a viagem',
+    footerAbout: 'Sobre mim',
     footerCoffee: 'Paga-me um café',
     nav: [
       { label: 'Início', href: '/' },
@@ -131,12 +155,14 @@ const dict: Record<Locale, Dict> = {
       { label: 'Motos', href: '/bikes' },
     ],
     home: {
-      heading: 'A documentar a viagem.',
+      heading: 'Todas as viagens começam no Porto.',
       intro:
         'Viagens, dicas suadas, as motos na garagem e cada chave dada — registado para não ter de me lembrar de tudo.',
       latestTripsCount: 2,
-      trips: { title: 'Últimas viagens', link: 'todas as viagens →' },
-      bikes: { title: 'A garagem', link: 'catálogo de motos →' },
+      stats: { rides: 'viagens', bike: 'moto', bikes: 'motos', farthest: 'a mais distante', ridden: 'percorridos', saddle: 'em cima da moto' },
+      mapCaption: 'Cada viagem tal como a fiz: a ida a cheio, o regresso a tracejado. Escolhe um sítio para ver a viagem.',
+      trips: { title: 'Últimas viagens', link: 'Todas as viagens' },
+      bikes: { title: 'A garagem', link: 'Catálogo de motos' },
     },
     pages: {
       trips: { title: 'Viagens', description: 'Relatos de viagens na estrada.', heading: 'Viagens' },
@@ -172,6 +198,16 @@ const dict: Record<Locale, Dict> = {
       tableDate: 'Data',
       tableMileage: 'Quilómetros',
       tableWork: 'Trabalho',
+      crowFlies: 'em linha reta',
+      themeToggle: 'Mudar entre tema claro e escuro',
+      sea: 'Atlântico',
+      readTrip: 'Ler a viagem',
+      mapZoomIn: 'Aproximar',
+      mapZoomOut: 'Afastar',
+      mapReset: 'Voltar ao Porto',
+      mapHintDesktop: 'Arrasta para explorar, ⌘/Ctrl + scroll para aproximar.',
+      mapHintTouch: 'Usa dois dedos para mover o mapa.',
+      ride: { distance: 'Distância', moving: 'Em movimento', elapsed: 'Tempo total', avg: 'Vel. média', max: 'Vel. máxima', climb: 'Subida', oneWay: 'só ida' },
     },
   },
 };

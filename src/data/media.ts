@@ -13,10 +13,11 @@ export const coverPosition: Record<string, string> = {
   "pedorido-river-beach": "50% 62%",
   "ofir": "50% 70%",
   "cavado-perelhal": "50% 62%",
-  "entre-os-rios": "50% 68%",
+  douro: "50% 68%",
   "sao-bartolomeu-dj": "50% 60%",
   "terra-nova-mindelo": "50% 72%",
   "melres-sofia": "50% 62%",
+  caminha: "50% 72%",
 };
 
 // Focal point (object-position) per individual photo for the detail-page
@@ -49,9 +50,9 @@ export const photoPosition: Record<string, string> = {
   "trips/20250619-cavado-perelhal/3_A8AD7100-BA36-455C-BC7D-387BB36CF828-6484-000000D6DB77E5D5.JPG": "50% 60%",
   "trips/20250619-cavado-perelhal/4_66E86498-5B51-4881-8531-2893C919323B-6276-000000D2AFE5B48F.JPG": "50% 60%",
   "trips/20250619-cavado-perelhal/5_FE668705-D7D1-4068-BAA1-0348C2B59976-6276-000000D2A6DA28D6.JPG": "50% 65%",
-  // entre-os-rios
-  "trips/20250722-entre-os-rios/1_E252468E-A79F-4E3B-917E-ADFD6786E315-50451-00001E51C346284E.jpg": "50% 85%",
-  "trips/20250722-entre-os-rios/2_8FB4CC2B-477B-4611-9DFD-E489713B3052-50451-00001E51EC30C26A.JPG": "50% 58%",
+  // douro
+  "trips/20250722-douro/trips_20250722-entre-os-rios_1_E252468E-A79F-4E3B-917E-ADFD6786E315-50451-00001E51C346284E.jpg": "50% 85%",
+  "trips/20250722-douro/trips_20250722-entre-os-rios_2_8FB4CC2B-477B-4611-9DFD-E489713B3052-50451-00001E51EC30C26A.JPG": "50% 58%",
   // sao-bartolomeu-dj
   "trips/20250809-sao-bartolomeu-dj/1_26D311B2-F9CC-422F-9BFF-B7445B9DA8DA-72353-00002D7C9FA0E9B6.JPG": "50% 60%",
   "trips/20250809-sao-bartolomeu-dj/2_65B2FB6E-B03E-43C2-9FCB-4781AD3CE4A0-72353-00002D7CAACBB263.JPG": "50% 62%",
@@ -62,6 +63,11 @@ export const photoPosition: Record<string, string> = {
   "trips/20260401-terra-nova-mindelo/3_3E4A85D4-424F-44E6-820C-001C930968EE-35756-000008B4EED850E9.jpg": "50% 62%",
   // melres-sofia
   "trips/20260607-melres-sofia/1_IMG_7197.JPG": "50% 62%",
+  // Caminha
+  "trips/20260923-caminha/0C068A70-C967-425C-A899-4B575A21FE7B-74811-00001187E19F7309.JPG": "50% 70%",
+  "trips/20260923-caminha/6A74CED0-F54B-4AB5-BD89-3EA3B617210E-74811-00001187AD671F60.jpg": "50% 72%",
+  "trips/20260923-caminha/74A6528B-DF59-4DB9-A51B-FD9594954F45-74811-000011877F3880B5.JPG": "50% 62%",
+  "trips/20260923-caminha/DC4F9CE2-E05D-4ED7-AE8E-67211D1AB1CD-74811-00001187EC09888B.JPG": "50% 50%",
 };
 
 export const tripPhotos: Record<string, string[]> = {
@@ -94,9 +100,9 @@ export const tripPhotos: Record<string, string[]> = {
     "trips/20250619-cavado-perelhal/4_66E86498-5B51-4881-8531-2893C919323B-6276-000000D2AFE5B48F.JPG",
     "trips/20250619-cavado-perelhal/5_FE668705-D7D1-4068-BAA1-0348C2B59976-6276-000000D2A6DA28D6.JPG",
   ],
-  "entre-os-rios": [
-    "trips/20250722-entre-os-rios/1_E252468E-A79F-4E3B-917E-ADFD6786E315-50451-00001E51C346284E.jpg",
-    "trips/20250722-entre-os-rios/2_8FB4CC2B-477B-4611-9DFD-E489713B3052-50451-00001E51EC30C26A.JPG",
+  douro: [
+    "trips/20250722-douro/trips_20250722-entre-os-rios_1_E252468E-A79F-4E3B-917E-ADFD6786E315-50451-00001E51C346284E.jpg",
+    "trips/20250722-douro/trips_20250722-entre-os-rios_2_8FB4CC2B-477B-4611-9DFD-E489713B3052-50451-00001E51EC30C26A.JPG",
   ],
   "sao-bartolomeu-dj": [
     "trips/20250809-sao-bartolomeu-dj/1_26D311B2-F9CC-422F-9BFF-B7445B9DA8DA-72353-00002D7C9FA0E9B6.JPG",
@@ -110,5 +116,11 @@ export const tripPhotos: Record<string, string[]> = {
   ],
   "melres-sofia": [
     "trips/20260607-melres-sofia/1_IMG_7197.JPG",
+  ],
+  caminha: [
+    "trips/20260923-caminha/0C068A70-C967-425C-A899-4B575A21FE7B-74811-00001187E19F7309.JPG",
+    "trips/20260923-caminha/6A74CED0-F54B-4AB5-BD89-3EA3B617210E-74811-00001187AD671F60.jpg",
+    "trips/20260923-caminha/74A6528B-DF59-4DB9-A51B-FD9594954F45-74811-000011877F3880B5.JPG",
+    "trips/20260923-caminha/DC4F9CE2-E05D-4ED7-AE8E-67211D1AB1CD-74811-00001187EC09888B.JPG",
   ],
 };

@@ -1,9 +1,9 @@
 ---
-title: "Passeio ao Fim do Dia a Entre-os-Rios"
+title: "Passeio ao Fim do Dia pelo Douro"
 date: 2025-07-22
 region: "Portugal — Norte"
 start: "Porto"
-end: "Entre-os-Rios"
+end: "Avintes"
 bike: cl500
 ---
 

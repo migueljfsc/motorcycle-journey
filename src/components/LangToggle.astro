@@ -10,17 +10,17 @@ let logical = Astro.url.pathname.slice(base.length).replace(/^\/(pt)(?=\/|$)/, '
 if (!logical) logical = '/';
 ---
 
-<div class="flex items-center gap-1 font-mono text-xs">
+<div class="label flex items-center gap-0.5">
   {
     locales.map((loc, i) => (
       <>
-        {i > 0 && <span class="text-[var(--color-border)]">/</span>}
+        {i > 0 && <span class="text-line">/</span>}
         <a
           href={localeUrl(loc, logical)}
           data-setlang={loc}
           class:list={[
-            'px-1 transition-colors hover:text-[var(--color-accent)]',
-            loc === current ? 'text-[var(--color-accent)]' : 'text-[var(--color-muted)]',
+            'px-1 transition-colors hover:text-sun',
+            loc === current ? 'text-ink' : 'text-faint',
           ]}
         >
           {localeName[loc]}

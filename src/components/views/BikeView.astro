@@ -41,19 +41,19 @@ const tabs = [
 ---
 
 <Layout title={`${data.make} ${data.model}`} description={`${c.bikeStatusLabel[data.status]} · ${data.year}`} wide>
-  <a href={localeUrl(locale, '/bikes')} class="font-mono text-sm text-[var(--color-muted)] hover:text-[var(--color-accent)]">
+  <a href={localeUrl(locale, '/bikes')} class="label text-muted transition-colors hover:text-sun">
     {c.ui.backToGarage}
   </a>
 
   <div class="mt-4 lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-10">
     <aside class="hidden lg:block">
-      <nav class="sticky top-24 flex flex-col gap-1 font-mono text-sm" data-tabs>
+      <nav class="label sticky top-24 flex flex-col gap-1" data-tabs>
         {
           tabs.map((tab) => (
             <a
               href={`#${tab.id}`}
               data-tab={tab.id}
-              class="rounded px-3 py-1.5 text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+              class="rounded px-3 py-1.5 text-muted transition-colors hover:text-sun"
             >
               {tab.label}
             </a>
@@ -63,11 +63,11 @@ const tabs = [
     </aside>
 
     <article class="min-w-0">
-      <div class="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+      <div class="label text-sun">
         {c.bikeStatusLabel[data.status]}
       </div>
-      <h1 class="mt-1 font-mono text-3xl font-semibold tracking-tight">{data.make} {data.model}</h1>
-      <div class="mt-1 font-mono text-sm text-[var(--color-muted)]">
+      <h1 class="mt-1 font-display text-[clamp(2.8rem,6vw,4.8rem)] leading-[0.9] font-black">{data.make} {data.model}</h1>
+      <div class="mt-3 text-lg italic text-muted">
         {data.year} · "{data.name[locale]}"
         {data.purchased && ` · ${c.ui.ownedSince} ${fmtMonthYear(data.purchased, locale)}`}
       </div>
@@ -83,11 +83,11 @@ const tabs = [
       {
         specs.length > 0 && (
           <section id="specs" class="mt-10 scroll-mt-24">
-            <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.specs}</h2>
-            <dl class="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)] sm:grid-cols-2">
+            <h2 class="mb-4 font-display text-3xl font-extrabold">{c.ui.specs}</h2>
+            <dl class="grid grid-cols-1 gap-px overflow-hidden rounded border border-line bg-line sm:grid-cols-2">
               {specs.map(([k, v]) => (
-                <div class="bg-[var(--color-card)] px-4 py-3">
-                  <dt class="font-mono text-xs uppercase tracking-wide text-[var(--color-muted)]">{k}</dt>
+                <div class="bg-surface px-4 py-3">
+                  <dt class="label text-muted">{k}</dt>
                   <dd class="mt-0.5">{v}</dd>
                 </div>
               ))}
@@ -99,19 +99,19 @@ const tabs = [
       {
         data.mods.length > 0 && (
           <section id="mods" class="mt-10 scroll-mt-24">
-            <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.modifications}</h2>
-            <ul class="flex flex-col gap-px overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-border)]">
+            <h2 class="mb-4 font-display text-3xl font-extrabold">{c.ui.modifications}</h2>
+            <ul class="flex flex-col gap-px overflow-hidden rounded border border-line bg-line">
               {data.mods.map((m) => (
-                <li class="bg-[var(--color-card)] px-4 py-3">
+                <li class="bg-surface px-4 py-3">
                   <div class="flex items-baseline justify-between gap-3">
                     <span class="font-medium">{m.name[locale]}</span>
                     {m.category && (
-                      <span class="shrink-0 font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
+                      <span class="shrink-0 label text-sun">
                         {m.category[locale]}
                       </span>
                     )}
                   </div>
-                  {m.note && <div class="mt-0.5 text-sm text-[var(--color-muted)]">{m.note[locale]}</div>}
+                  {m.note && <div class="mt-0.5 text-sm text-muted">{m.note[locale]}</div>}
                 </li>
               ))}
             </ul>
@@ -122,7 +122,7 @@ const tabs = [
       {
         trips.length > 0 && (
           <section id="trips" class="mt-10 scroll-mt-24">
-            <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.tripsOnBike}</h2>
+            <h2 class="mb-4 font-display text-3xl font-extrabold">{c.ui.tripsOnBike}</h2>
             <CardCarousel>
               {trips.map((trip) => (
                 <div class="snap-start shrink-0 basis-[88%] sm:basis-[48%]">
@@ -135,7 +135,7 @@ const tabs = [
       }
 
       <section id="service" class="mt-10 scroll-mt-24">
-        <h2 class="mb-4 font-mono text-xl font-semibold">{c.ui.serviceHistory}</h2>
+        <h2 class="mb-4 font-display text-3xl font-extrabold">{c.ui.serviceHistory}</h2>
         <ServiceTable services={services} />
       </section>
     </article>
@@ -161,9 +161,9 @@ const tabs = [
       }
       for (const l of tabLinks) {
         const on = l.dataset.tab === currentId;
-        l.style.color = on ? 'var(--color-accent)' : '';
+        l.style.color = on ? 'var(--sun)' : '';
         l.style.fontWeight = on ? '600' : '';
-        l.style.borderLeft = on ? '2px solid var(--color-accent)' : '2px solid transparent';
+        l.style.borderLeft = on ? '2px solid var(--sun)' : '2px solid transparent';
       }
     };
     setActive();

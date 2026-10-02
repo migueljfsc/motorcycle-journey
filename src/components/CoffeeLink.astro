@@ -1,0 +1,28 @@
+---
+// Buy Me a Coffee as a plain link in the site's accent, not their embed script: the
+// script would load third-party code, and send every visitor's IP to them, on every page.
+import { t, defaultLocale, type Locale } from '../data/site';
+
+interface Props {
+  /** Hide the label below `sm`, leaving the icon (header). */
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const c = t(locale);
+---
+
+<a
+  href="https://buymeacoffee.com/migueljfsc"
+  target="_blank"
+  rel="noopener noreferrer"
+  title={c.footerCoffee}
+  aria-label={c.footerCoffee}
+  class="inline-flex h-9 min-w-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-sun/35 px-2.5 font-display text-base font-semibold tracking-wide text-sun transition hover:border-sun/70 hover:bg-sun/10 sm:px-3.5"
+>
+  <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M10 2v2M14 2v2M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" />
+    <path d="M6 2v2" />
+  </svg>
+  <span class:list={['whitespace-nowrap', compact && 'hidden lg:inline']}>{c.footerCoffee}</span>
+</a>
