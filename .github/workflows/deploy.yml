@@ -2,7 +2,7 @@ name: Deploy to Cloudflare
 
 # Builds on PRs (so we can see it compiles before merging, e.g. Dependabot bumps)
 # and on push to main; only main actually deploys, as a static-assets Worker to
-# https://moto-journey.migueljfsc.dev.
+# https://motojourney.migueljfsc.dev.
 #
 # WHY WRANGLER AND NOT OPENTOFU. Deploying static assets is an upload of file hashes that ends
 # in a completion token Cloudflare expires after an hour; Terraform can neither produce it nor

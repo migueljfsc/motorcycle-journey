@@ -59,7 +59,7 @@ variable "domain" {
 
 variable "site_hostname" {
   type        = string
-  default     = "moto-journey"
+  default     = "motojourney"
   description = "The site's subdomain. The Worker's custom domain for it is in wrangler.jsonc."
 }
 

@@ -9,11 +9,11 @@ ends in an upload token Cloudflare expires after an hour.
 
 | File | Resource | Status |
 |------|----------|--------|
-| `r2.tf` | R2 media bucket, CORS, and its custom domain `moto-journey-img.migueljfsc.dev` | **active** |
+| `r2.tf` | R2 media bucket, CORS, and its custom domain `motojourney-img.migueljfsc.dev` | **active** |
 | `data.tf` | Zone lookup | **active** |
 
 `migueljfsc.dev` is a personal domain shared across projects: this stack creates only
-`moto-journey*` names. The apex and its redirects belong to the portfolio.
+`motojourney*` names. The apex and its redirects belong to the portfolio.
 
 ## Prerequisites
 

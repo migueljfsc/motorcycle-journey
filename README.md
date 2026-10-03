@@ -6,7 +6,7 @@ A mostly-static site documenting a motorcycle journey: **trips**, **tips & trick
 **bike catalog**, and **per-bike service logs**. Built with Astro + Tailwind, bilingual
 (EN / PT), deployed to Cloudflare.
 
-**Live:** https://moto-journey.migueljfsc.dev (PT at `/pt/`)
+**Live:** https://motojourney.migueljfsc.dev (PT at `/pt/`)
 
 ## Develop
 
@@ -48,6 +48,6 @@ for npm and GitHub Actions, with a 7-day cooldown before a new release is propos
 ## Deploy
 
 Pushing to `main` triggers `.github/workflows/deploy.yml`: Astro builds, and wrangler deploys
-`dist/` as a static-assets Worker on `https://moto-journey.migueljfsc.dev` (`wrangler.jsonc`).
+`dist/` as a static-assets Worker on `https://motojourney.migueljfsc.dev` (`wrangler.jsonc`).
 The media bucket and its domain are OpenTofu in `infrastructure/terraform/cloudflare`,
 applied by `.github/workflows/terraform.yml`.

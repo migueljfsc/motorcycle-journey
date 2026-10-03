@@ -9,6 +9,6 @@ environment = "prod"
 r2_location = "WEUR" # Western Europe
 
 # ---- Domain ----
-# Personal and shared across projects; this stack owns only moto-journey* names. The site is a
-# Worker (wrangler.jsonc); this stack serves the photos at moto-journey-img.migueljfsc.dev.
+# Personal and shared across projects; this stack owns only motojourney* names. The site is a
+# Worker (wrangler.jsonc); this stack serves the photos at motojourney-img.migueljfsc.dev.
 domain = "migueljfsc.dev"

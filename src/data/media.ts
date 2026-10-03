@@ -2,7 +2,7 @@
 // Generated from the motorcycle-journey-media bucket, served by its custom domain
 // (OpenTofu, infrastructure/terraform/cloudflare/r2.tf).
 
-export const MEDIA_BASE = "https://moto-journey-img.migueljfsc.dev";
+export const MEDIA_BASE = "https://motojourney-img.migueljfsc.dev";
 
 // Vertical focal point (object-position) for each trip's card thumbnail. Most
 // trip covers are portrait shots with the bike low in the frame, so a centred

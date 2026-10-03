@@ -6,7 +6,7 @@ locals {
 
   # Gate for domain-dependent resources (DNS + custom domains).
   has_domain = var.domain != ""
-  # A hyphen, not a dot: Universal SSL covers one level of subdomain, so img.moto-journey.<domain>
+  # A hyphen, not a dot: Universal SSL covers one level of subdomain, so img.motojourney.<domain>
   # would need a certificate of its own.
   r2_public_fqdn = local.has_domain ? "${var.site_hostname}-${var.r2_public_hostname}.${var.domain}" : null
 }

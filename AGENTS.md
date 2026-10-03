@@ -14,7 +14,7 @@ page edit.
 - **Themes**: dark + light, `data-theme` on `<html>`; `ThemeToggle.astro` saves `localStorage['moto-theme']`,
   pre-paint script in `Layout.astro` falls back to `prefers-color-scheme`
 - **Package manager**: pnpm (Node >= 22.12)
-- **Deploy**: Cloudflare Worker static assets at `https://moto-journey.migueljfsc.dev`
+- **Deploy**: Cloudflare Worker static assets at `https://motojourney.migueljfsc.dev`
   (`wrangler.jsonc`), deployed by `.github/workflows/deploy.yml`; infra is OpenTofu (below)
 - **Dependency updates**: Dependabot weekly (Sun 20:00 Europe/Lisbon), 7-day release cooldown
   (`.github/dependabot.yml`)
@@ -33,14 +33,14 @@ page edit.
   that honors that saved choice.
 
 ## Hosting
-Served from the root of `https://moto-journey.migueljfsc.dev` — a subdomain of the personal
-`migueljfsc.dev`, shared across projects; this repo owns only `moto-journey*` names. Two halves,
+Served from the root of `https://motojourney.migueljfsc.dev` — a subdomain of the personal
+`migueljfsc.dev`, shared across projects; this repo owns only `motojourney*` names. Two halves,
 never mixed:
 - **The site** — a static-assets Worker with no code (`wrangler.jsonc`, custom domain there
   because wrangler reconciles a Worker's routes on every deploy), deployed by `deploy.yml` on
   push to `main`. PRs build only. Never `wrangler deploy` by hand.
 - **Everything around it** — OpenTofu in `infrastructure/terraform/cloudflare` (the media R2
-  bucket, its CORS and its `moto-journey-img.` custom domain), applied by `terraform.yml`.
+  bucket, its CORS and its `motojourney-img.` custom domain), applied by `terraform.yml`.
 
 Photos are R2 object keys resolved against `MEDIA_BASE` (`src/data/media.ts`). Keep using
 `localeUrl()` / `asset()` for links: `base` is `/` now, but they cost nothing and survive a move.
